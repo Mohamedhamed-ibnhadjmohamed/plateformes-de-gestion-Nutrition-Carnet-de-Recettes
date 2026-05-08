@@ -23,7 +23,13 @@ plateformes-de-gestion-Nutrition-Carnet-de-Recettes/
     │   ├── Location.cs         # Modèle des localisations
     │   ├── SensorData.cs       # Modèle des capteurs
     │   ├── SensorValueHistory.cs # Historique des valeurs
-    │   └── Tag.cs              # Modèle des étiquettes
+    │   ├── Tag.cs              # Modèle des étiquettes
+    │   ├── Categorie.cs        # Catégories de recettes
+    │   ├── TypeCuisine.cs      # Types de cuisine
+    │   ├── Unite.cs            # Unités de mesure
+    │   ├── Ingredient.cs       # Ingrédients avec valeurs nutritionnelles
+    │   ├── Recette.cs          # Recettes avec ingrédients et informations
+    │   └── RecetteIngredient.cs # Table de liaison Recette-Ingredient
     ├── Services/               # Logique métier
     │   ├── ISensorService.cs   # Interface du service capteurs
     │   └── SensorService.cs    # Implémentation du service
@@ -47,6 +53,23 @@ plateformes-de-gestion-Nutrition-Carnet-de-Recettes/
 - **Location**: Gestion des localisations des capteurs
 - **Tag**: Système d'étiquetage pour les capteurs
 - **SensorValueHistory**: Historique des valeurs des capteurs
+- **Categorie**: Catégories de recettes (Déjeuner, Dîner, etc.) avec icônes
+- **TypeCuisine**: Types de cuisine (Tunisienne, Française, etc.) avec pays d'origine
+- **Unite**: Unités de mesure (Gramme, Millilitre, etc.) avec symboles
+- **Ingredient**: Ingrédients avec valeurs nutritionnelles et macronutriments
+- **Recette**: Recettes avec ingrédients, catégories et types de cuisine
+- **RecetteIngredient**: Table de liaison many-to-many entre recettes et ingrédients
+
+**Data Annotations utilisées :**
+- **[Required]**: Génère une contrainte NOT NULL en base de données
+- **[Range]**: Validation côté serveur ET client pour les valeurs numériques
+- **[MaxLength]**: Limite la taille des colonnes SQLite selon la valeur spécifiée
+
+**Relations complètes entre les modèles :**
+- **Categorie 1→N Recette**: Une catégorie peut contenir plusieurs recettes
+- **TypeCuisine 1→N Recette**: Un type de cuisine peut regrouper plusieurs recettes
+- **Unite 1→N Ingredient**: Une unité de mesure peut être utilisée par plusieurs ingrédients
+- **Recette N→N Ingredient**: Relation many-to-many via la table de liaison RecetteIngredient
 
 #### 2. Data (Accès aux données)
 - **AppDbContext**: Contexte Entity Framework Core
