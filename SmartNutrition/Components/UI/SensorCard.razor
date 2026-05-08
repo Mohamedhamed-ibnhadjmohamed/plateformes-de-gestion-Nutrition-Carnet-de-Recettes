@@ -1,0 +1,50 @@
+@using SmartNutrition.Models
+
+<div class="card shadow-sm h-100">
+    <div class="card-body">
+        <div class="d-flex align-items-center mb-3">
+            <div class="me-3 text-primary">
+                <i class="bi bi-thermometer-half" style="font-size: 2rem;"></i>
+            </div>
+            <div>
+                <h5 class="card-title mb-1">@Sensor?.Name</h5>
+                <p class="mb-0 text-muted">@Sensor?.Location?.Name</p>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-baseline justify-content-between mb-3">
+            <div>
+                <span class="h2 mb-0">@Sensor?.Value</span>
+                <small class="text-muted">&nbsp;°C</small>
+            </div>
+            <span class="badge bg-secondary">@Sensor?.Type</span>
+        </div>
+
+        <div class="card-footer bg-transparent border-0 px-0 pt-0">
+            <div class="d-flex gap-2">
+                <a class="btn btn-sm btn-outline-primary flex-grow-1" href="@($"/edit-sensor/{Sensor?.Id}")">
+                    <i class="bi bi-pencil"></i> Edit
+                </a>
+                <button class="btn btn-sm btn-outline-danger flex-grow-1" @onclick="OnDeleteButtonClicked">
+                    <i class="bi bi-trash"></i> Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public SensorData Sensor { get; set; }
+
+    [Parameter]
+    public EventCallback<int> OnDeleteClicked { get; set; }
+
+    private async Task OnDeleteButtonClicked()
+    {
+        if (Sensor != null)
+        {
+            await OnDeleteClicked.InvokeAsync(Sensor.Id);
+        }
+    }
+}

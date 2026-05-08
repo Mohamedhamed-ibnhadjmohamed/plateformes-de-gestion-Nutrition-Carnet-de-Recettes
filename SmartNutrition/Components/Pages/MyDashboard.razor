@@ -1,0 +1,190 @@
+﻿@using SmartNutrition.Models
+@using SmartNutrition.Services
+@using Microsoft.JSInterop
+@page "/dashboard"
+@page "/"
+@rendermode InteractiveServer
+@attribute [StreamRendering]
+@inject ISensorService SensorService
+@inject NavigationManager NavManager
+@inject IJSRuntime JS
+
+<!-- Dans MyDashboard.razor -->
+<!-- In MyDashboard.razor -->
+<div class="row mb-4">
+    <div class="col-md-4 mb-3">
+        <!-- Parameters are passed like simple HTML attributes -->
+        <KpiCard Title="Total Sensors" Value="@TotalSensors.ToString()"
+                 BackgroundColorClass="bg-primary" IconClass="bi-box-seam" />
+    </div>
+    <div class="col-md-4 mb-3">
+        <KpiCard Title="Global Average" Value="@($"{Average:F1} °C")"
+                 BackgroundColorClass="bg-success" IconClass="bi-bullseye" />
+    </div>
+    <div class="col-md-4 mb-3">
+        <KpiCard Title="Max Alert" Value="@($"{MaxValue:F1} °C")"
+                 BackgroundColorClass="bg-danger" IconClass="bi-exclamation-triangle-fill" />
+    </div>
+</div>
+
+@if (Sensors == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-bar-chart-fill text-primary"></i> Températures Moyennes</h5>
+                </div>
+                <div class="card-body">
+                    <RadzenChart SeriesClick="@OnChartClick">
+                        <RadzenColumnSeries Data="@LocationStats"  CategoryProperty="LocationName" ValueProperty="AverageValue" Title="Moyenne" Fill="#0d6efd" />
+                        <RadzenValueAxis Formatter="@((value) => Math.Round((double)value, 1) + " °C")" />
+                        <RadzenLegend Visible="false" />
+                    </RadzenChart>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+    <div class="card shadow-sm h-100">
+        <div class="card-header bg-white">
+            <h5 class="mb-0"><i class="bi bi-speedometer2 text-danger"></i> Valeur Max Détectée</h5>
+        </div>
+        <div class="card-body text-center d-flex flex-column justify-content-center">            
+            <RadzenRadialGauge Style="width: 100%; height: 250px;">
+                <RadzenRadialGaugeScale StartAngle="0" EndAngle="100" Step="20">
+                    <RadzenRadialGaugeScalePointer Value="@MaxValue" Length="0.6" ShowValue="true" />                    
+                    <RadzenRadialGaugeScaleRange From="0" To="40" Fill="green" />                    
+                    <RadzenRadialGaugeScaleRange From="40" To="70" Fill="orange" />                    
+                    <RadzenRadialGaugeScaleRange From="70" To="100" Fill="red" />
+                </RadzenRadialGaugeScale>
+            </RadzenRadialGauge>
+        </div>
+    </div>
+</div>
+</div>
+
+    <div class="mb-3">
+        <button class="btn btn-outline-secondary ms-2" @onclick="() => ShowAsCards = !ShowAsCards">
+            <i class="bi bi-arrow-left-right"></i> Toggle View
+        </button>
+        <button class="btn btn-secondary ms-2" @onclick="LoadAll"><i class="bi bi-arrow-clockwise"></i> All Sensors</button>
+        <button class="btn btn-warning ms-2" @onclick="LoadCritical"><i class="bi bi-exclamation-triangle"></i> Alertes (> 30.0)</button>
+        <a href="/edit-sensor" class="btn btn-success ms-2"> <i class="bi bi-plus"></i> New Sensor</a>
+    </div>
+
+    @if (!string.IsNullOrEmpty(DeleteMessage))
+    {
+        <div class="alert @DeleteMessageClass mt-3" role="alert">
+           <span class="bi bi-info-circle"></span> @DeleteMessage
+        </div>
+    }
+
+    @if (ShowAsCards)
+    {
+        <div class="row g-3">
+            @foreach (var s in Sensors)
+            {
+                <div class="col-12 col-sm-6 col-md-4 col-xl-3">
+                    <SensorCard Sensor="s" OnDeleteClicked="DeleteSensor" />
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <SensorTable Sensors="FilteredSensors" OnDeleteClicked="DeleteSensor" />
+    }
+}
+
+@code {
+    private List<SensorData> Sensors;
+    private bool ShowAsCards = false;
+
+    private int TotalSensors;
+    private double Average;
+    private double MaxValue ;
+
+    private List<LocationStat> LocationStats = new();
+
+    private List<SensorData> FilteredSensors { 
+        get { 
+            return SelectedLocationFilter == null
+            ? Sensors 
+            : Sensors.Where(s => s.Location?.Name == SelectedLocationFilter).ToList(); 
+        } 
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAll();
+        LocationStats = await SensorService.GetAverageValueByLocationAsync();
+    }
+
+    private async Task LoadAll()
+    {
+        Sensors = await SensorService.GetSensorsAsync();
+        TotalSensors = await SensorService.GetTotalCountAsync();
+        Average = await SensorService.GetAverageValueAsync();
+        MaxValue = await SensorService.GetMaxValueAsync();
+    }
+
+    private async Task LoadCritical()
+    {
+        Sensors = await SensorService.GetCriticalSensorsAsync(30.0);
+    }
+
+    private string DeleteMessage;
+    private string DeleteMessageClass = "alert alert-info";
+
+    private async Task DeleteSensor(int id)
+    {
+        var sensor = Sensors?.FirstOrDefault(s => s.Id == id) ?? await SensorService.GetSensorByIdAsync(id);
+        var sensorName = sensor?.Name ?? "this sensor";
+
+        var confirmed = await JS.InvokeAsync<bool>("confirm", $"Are you sure you want to delete '{sensorName}'?");
+        if (confirmed)
+        {
+           if (await SensorService.GetSensorByIdAsync(id) == null)
+                {
+                    DeleteMessage = "Sensor not found or already deleted.";
+                    DeleteMessageClass = "alert alert-danger";
+                    return;
+                }
+
+            await SensorService.DeleteSensorAsync(id);
+            DeleteMessage = $"Sensor '{sensorName}' has been deleted.";
+            DeleteMessageClass = "alert alert-success";
+            await LoadAll();
+            StateHasChanged(); // Force UI update to show the message immediately
+            await Task.Delay(5000); // Wait for 5 seconds
+            DeleteMessage = null;
+            DeleteMessageClass = "alert alert-info";
+            StateHasChanged();
+        }
+
+        
+        
+    }
+
+    private string? SelectedLocationFilter = null;
+
+// Cette méthode sera appelée par Radzen
+private void OnChartClick(SeriesClickEventArgs args)
+{
+    // args.Category contient le nom du lieu cliqué (ex: "Labo")
+    string clickedLocation = args.Category.ToString();
+
+    // Bascule (Toggle) : si on reclique sur le même, on annule le filtre
+    if (SelectedLocationFilter == clickedLocation)
+        SelectedLocationFilter = null;
+    else
+        SelectedLocationFilter = clickedLocation;
+}
+
+// On crée une propriété calculée qui filtre la liste pour le tableau
+
+}

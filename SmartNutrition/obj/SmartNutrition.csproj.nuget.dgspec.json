@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Projets\\plateformes-de-gestion-Nutrition-Carnet-de-Recettes\\SmartNutrition\\SmartNutrition.csproj": {}
+    "D:\\DashboardData-4DS-2026-Lab10-StartCode\\DashboardData-4DS-2026-Lab10-StartCode\\SmartNutrition\\SmartNutrition.csproj": {}
   },
   "projects": {
-    "D:\\Projets\\plateformes-de-gestion-Nutrition-Carnet-de-Recettes\\SmartNutrition\\SmartNutrition.csproj": {
+    "D:\\DashboardData-4DS-2026-Lab10-StartCode\\DashboardData-4DS-2026-Lab10-StartCode\\SmartNutrition\\SmartNutrition.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Projets\\plateformes-de-gestion-Nutrition-Carnet-de-Recettes\\SmartNutrition\\SmartNutrition.csproj",
+        "projectUniqueName": "D:\\DashboardData-4DS-2026-Lab10-StartCode\\DashboardData-4DS-2026-Lab10-StartCode\\SmartNutrition\\SmartNutrition.csproj",
         "projectName": "SmartNutrition",
-        "projectPath": "D:\\Projets\\plateformes-de-gestion-Nutrition-Carnet-de-Recettes\\SmartNutrition\\SmartNutrition.csproj",
+        "projectPath": "D:\\DashboardData-4DS-2026-Lab10-StartCode\\DashboardData-4DS-2026-Lab10-StartCode\\SmartNutrition\\SmartNutrition.csproj",
         "packagesPath": "C:\\Users\\mhbm\\.nuget\\packages\\",
-        "outputPath": "D:\\Projets\\plateformes-de-gestion-Nutrition-Carnet-de-Recettes\\SmartNutrition\\obj\\",
+        "outputPath": "D:\\DashboardData-4DS-2026-Lab10-StartCode\\DashboardData-4DS-2026-Lab10-StartCode\\SmartNutrition\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -51,8 +51,22 @@
             "Microsoft.AspNetCore.App.Internal.Assets": {
               "suppressParent": "All",
               "target": "Package",
-              "version": "[10.0.2, )",
+              "version": "[10.0.7, )",
               "autoReferenced": true
+            },
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[10.0.3, )"
+            },
+            "Microsoft.EntityFrameworkCore.Sqlite": {
+              "target": "Package",
+              "version": "[10.0.3, )"
+            },
+            "Radzen.Blazor": {
+              "target": "Package",
+              "version": "[10.3.0, )"
             }
           },
           "imports": [
@@ -74,7 +88,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.102/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.107/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.AspNetCore": "(,10.0.32767]",
             "Microsoft.AspNetCore.Antiforgery": "(,10.0.32767]",
