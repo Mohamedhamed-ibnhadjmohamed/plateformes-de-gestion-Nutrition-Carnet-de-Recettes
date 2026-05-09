@@ -18,17 +18,21 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite("Data Source=app.db"));
 //================================================================================
 
-// Register the RecetteService as a scoped service
+// Register services as scoped services
 builder.Services.AddScoped<IRecetteService, RecetteService>();
+builder.Services.AddScoped<IUniteService, UniteService>();
+builder.Services.AddScoped<ITypeCuisineService, TypeCuisineService>();
+builder.Services.AddScoped<IIngredientService, IngredientService>();
+builder.Services.AddScoped<ICategorieService, CategorieService>();
 builder.Services.AddRadzenComponents();
 
 var app = builder.Build();
 
-//===== Create database and apply seed data ======
+//===== Create database and apply migrations ======
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    dbContext.Database.EnsureCreated(); // Crée la base si elle n'existe pas
+    dbContext.Database.Migrate(); // Applique les migrations en attente
 }
 //================================================================================
 

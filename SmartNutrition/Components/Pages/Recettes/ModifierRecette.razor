@@ -1,0 +1,275 @@
+@page "/gestion-recettes/modifier/{id:int}"
+@using SmartNutrition.Models
+@using SmartNutrition.Services
+@inject IRecetteService RecetteService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Modifier une Recette</PageTitle>
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <NavLink href="/gestion-recettes" class="btn btn-outline-secondary me-2">
+                <i class="bi bi-arrow-left me-2"></i>Retour
+            </NavLink>
+            <h2 class="d-inline-block">Modifier une Recette</h2>
+        </div>
+    </div>
+
+    @if (loading)
+    {
+        <div class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Chargement...</span>
+            </div>
+        </div>
+    }
+    else if (recette == null)
+    {
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            Recette non trouvée.
+        </div>
+    }
+    else
+    {
+        <EditForm Model="@recette" OnValidSubmit="@HandleValidSubmit">
+            <DataAnnotationsValidator />
+            
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Informations générales</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Nom de la recette *</label>
+                                    <InputText class="form-control" @bind-Value="recette.Nom" />
+                                    <ValidationMessage For="@(() => recette.Nom)" class="text-danger small" />
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label">Nombre de personnes *</label>
+                                    <InputNumber class="form-control" @bind-Value="recette.NbPersonnes" />
+                                    <ValidationMessage For="@(() => recette.NbPersonnes)" class="text-danger small" />
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label">Temps de préparation (min)</label>
+                                    <InputNumber class="form-control" @bind-Value="recette.DureePreparation" />
+                                    <ValidationMessage For="@(() => recette.DureePreparation)" class="text-danger small" />
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Catégorie *</label>
+                                    <InputSelect class="form-select" @bind-Value="recette.CategorieId">
+                                        <option value="">Sélectionner une catégorie</option>
+                                        @if (categories != null)
+                                        {
+                                            @foreach (var categorie in categories)
+                                            {
+                                                <option value="@categorie.Id">@categorie.Libelle</option>
+                                            }
+                                        }
+                                    </InputSelect>
+                                    <ValidationMessage For="@(() => recette.CategorieId)" class="text-danger small" />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Type de cuisine *</label>
+                                    <InputSelect class="form-select" @bind-Value="recette.TypeCuisineId">
+                                        <option value="">Sélectionner un type de cuisine</option>
+                                        @if (typesCuisine != null)
+                                        {
+                                            @foreach (var type in typesCuisine)
+                                            {
+                                                <option value="@type.Id">@type.Libelle</option>
+                                            }
+                                        }
+                                    </InputSelect>
+                                    <ValidationMessage For="@(() => recette.TypeCuisineId)" class="text-danger small" />
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Description</label>
+                                <InputTextArea class="form-control" @bind-Value="recette.Description" rows="3" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">Ingrédients</h5>
+                            <button type="button" class="btn btn-sm btn-primary" @onclick="AddIngredient">
+                                <i class="bi bi-plus-circle me-1"></i>Ajouter
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            @if (recetteIngredients.Any())
+                            {
+                                @for (int i = 0; i < recetteIngredients.Count; i++)
+                                {
+                                    <div class="border rounded p-3 mb-2">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <h6 class="mb-0">Ingrédient @(i + 1)</h6>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" @onclick="() => RemoveIngredient(i)">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                        
+                                        <div class="row g-2">
+                                            <div class="col-4">
+                                                <InputNumber class="form-control form-control-sm" @bind-Value="recetteIngredients[i].Quantite" placeholder="Quantité" />
+                                            </div>
+                                            <div class="col-4">
+                                                <InputSelect class="form-select form-select-sm" @bind-Value="recetteIngredients[i].UniteId">
+                                                    <option value="">Unité</option>
+                                                    @if (unites != null)
+                                                    {
+                                                        @foreach (var unite in unites)
+                                                        {
+                                                            <option value="@unite.Id">@unite.Libelle</option>
+                                                        }
+                                                    }
+                                                </InputSelect>
+                                            </div>
+                                            <div class="col-4">
+                                                <InputSelect class="form-select form-select-sm" @bind-Value="recetteIngredients[i].IngredientId">
+                                                    <option value="">Ingrédient</option>
+                                                    @if (ingredients != null)
+                                                    {
+                                                        @foreach (var ingredient in ingredients)
+                                                        {
+                                                            <option value="@ingredient.Id">@ingredient.Nom</option>
+                                                        }
+                                                    }
+                                                </InputSelect>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <p class="text-muted text-center">Aucun ingrédient ajouté</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <button type="submit" class="btn btn-primary me-2" disabled="@isSubmitting">
+                                @if (isSubmitting)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                }
+                                Enregistrer les modifications
+                            </button>
+                            <NavLink href="/gestion-recettes" class="btn btn-secondary">Annuler</NavLink>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </EditForm>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Recette? recette;
+    private List<RecetteIngredient> recetteIngredients = new List<RecetteIngredient>();
+    private List<Categorie>? categories;
+    private List<TypeCuisine>? typesCuisine;
+    private List<Ingredient>? ingredients;
+        private List<Unite>? unites;
+    private bool loading = true;
+    private bool isSubmitting = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        loading = true;
+        try
+        {
+            recette = await RecetteService.GetRecetteByIdAsync(Id);
+            categories = (await RecetteService.GetCategoriesAsync()).ToList();
+            typesCuisine = (await RecetteService.GetTypesCuisineAsync()).ToList();
+            ingredients = (await RecetteService.GetIngredientsAsync()).ToList();
+            unites = (await RecetteService.GetUnitesAsync()).ToList();
+
+            if (recette != null)
+            {
+                recetteIngredients = recette.RecetteIngredients?.ToList() ?? new List<RecetteIngredient>();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading data: {ex.Message}");
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private void AddIngredient()
+    {
+        recetteIngredients.Add(new RecetteIngredient { RecetteId = Id });
+    }
+
+    private void RemoveIngredient(int index)
+    {
+        if (index >= 0 && index < recetteIngredients.Count)
+        {
+            var ingredient = recetteIngredients[index];
+            if (ingredient.Id > 0)
+            {
+                // Si l'ingrédient existe en base, on le marque pour suppression
+                // TODO: Implémenter la suppression logique ou physique
+            }
+            recetteIngredients.RemoveAt(index);
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (isSubmitting || recette == null) return;
+
+        isSubmitting = true;
+        try
+        {
+            // Valider que tous les ingrédients ont des données complètes
+            var validIngredients = recetteIngredients
+                .Where(ri => ri.IngredientId > 0 && ri.UniteId > 0 && ri.Quantite > 0)
+                .ToList();
+
+            recette.RecetteIngredients = validIngredients;
+
+            await RecetteService.UpdateRecetteAsync(recette);
+            NavigationManager.NavigateTo("/gestion-recettes");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error updating recipe: {ex.Message}");
+            // TODO: Afficher un message d'erreur à l'utilisateur
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+}

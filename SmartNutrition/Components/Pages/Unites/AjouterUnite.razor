@@ -1,0 +1,176 @@
+@page "/gestion-unites/ajouter"
+@using SmartNutrition.Models
+@using SmartNutrition.Services
+@inject IUniteService UniteService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Ajouter une Unité</PageTitle>
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <NavLink href="/gestion-unites">Gestion des Unités</NavLink>
+                    </li>
+                    <li class="breadcrumb-item active">Ajouter une unité</li>
+                </ol>
+            </nav>
+            <h2>Ajouter une unité</h2>
+            <p class="text-muted">Créez une nouvelle unité de mesure pour vos recettes</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <EditForm Model="@nouvelleUnite" OnValidSubmit="HandleValidSubmit">
+                        <DataAnnotationsValidator />
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Libellé *</label>
+                            <InputText class="form-control" @bind-Value="nouvelleUnite.Libelle" 
+                                       placeholder="ex: Gramme, Kilogramme, Millilitre" />
+                            <ValidationMessage For="@(() => nouvelleUnite.Libelle)" class="text-danger" />
+                            <small class="form-text text-muted">Nom complet de l'unité de mesure</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Symbole *</label>
+                            <InputText class="form-control" @bind-Value="nouvelleUnite.Symbole" 
+                                       placeholder="ex: g, kg, ml, pcs" />
+                            <ValidationMessage For="@(() => nouvelleUnite.Symbole)" class="text-danger" />
+                            <small class="form-text text-muted">Abréviation utilisée dans les recettes</small>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                                @if (isSubmitting)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                }
+                                Ajouter l'unité
+                            </button>
+                            <button type="button" class="btn btn-secondary" @onclick="Cancel">
+                                Annuler
+                            </button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Conseils</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="bi bi-info-circle text-primary me-2"></i>
+                            <strong>Libellé:</strong> Utilisez un nom descriptif et complet
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-info-circle text-primary me-2"></i>
+                            <strong>Symbole:</strong> Utilisez une abréviation courte et standard
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-info-circle text-primary me-2"></i>
+                            <strong>Exemples:</strong> "Gramme" avec "g", "Kilogramme" avec "kg"
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Unités existantes</h5>
+                </div>
+                <div class="card-body">
+                    @if (unitesExistantes == null || !unitesExistantes.Any())
+                    {
+                        <p class="text-muted">Aucune unité existante</p>
+                    }
+                    else
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var unite in unitesExistantes.Take(5))
+                            {
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>@unite.Libelle</strong>
+                                        <br>
+                                        <small class="text-muted">@unite.Symbole</small>
+                                    </div>
+                                    <span class="badge bg-info">
+                                        @(unite.Ingredients?.Count ?? 0)
+                                    </span>
+                                </div>
+                            }
+                        </div>
+                        @if (unitesExistantes.Count > 5)
+                        {
+                            <small class="text-muted d-block mt-2">
+                                Et @unitesExistantes.Count - 5 autres unités...
+                            </small>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private Unite nouvelleUnite = new();
+    private List<Unite>? unitesExistantes;
+    private bool isSubmitting = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUnitesExistantes();
+    }
+
+    private async Task LoadUnitesExistantes()
+    {
+        try
+        {
+            unitesExistantes = (await UniteService.GetAllUnitesAsync()).ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading existing unites: {ex.Message}");
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (nouvelleUnite == null) return;
+
+        isSubmitting = true;
+        try
+        {
+            await UniteService.CreateUniteAsync(nouvelleUnite);
+            
+            // Rediriger vers la page de gestion
+            NavigationManager.NavigateTo("/gestion-unites");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error creating unite: {ex.Message}");
+            // TODO: Afficher un message d'erreur à l'utilisateur
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/gestion-unites");
+    }
+}

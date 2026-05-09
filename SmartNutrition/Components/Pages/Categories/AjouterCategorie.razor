@@ -1,0 +1,202 @@
+@page "/gestion-categories/ajouter"
+@using SmartNutrition.Models
+@using SmartNutrition.Services
+@inject ICategorieService CategorieService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Ajouter une Catégorie</PageTitle>
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <NavLink href="/gestion-categories">Gestion des Catégories</NavLink>
+                    </li>
+                    <li class="breadcrumb-item active">Ajouter une catégorie</li>
+                </ol>
+            </nav>
+            <h2>Ajouter une catégorie</h2>
+            <p class="text-muted">Créez une nouvelle catégorie de repas</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <EditForm Model="@nouvelleCategorie" OnValidSubmit="HandleValidSubmit">
+                        <DataAnnotationsValidator />
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Libellé *</label>
+                            <InputText class="form-control" @bind-Value="nouvelleCategorie.Libelle" 
+                                       placeholder="ex: Petit-déjeuner, Déjeuner, Dîner" />
+                            <ValidationMessage For="@(() => nouvelleCategorie.Libelle)" class="text-danger" />
+                            <small class="form-text text-muted">Nom de la catégorie de repas</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Icône</label>
+                            <InputText class="form-control" @bind-Value="nouvelleCategorie.Icone" 
+                                       placeholder="ex: 🌅, ☀️, 🌙" maxlength="10" />
+                            <ValidationMessage For="@(() => nouvelleCategorie.Icone)" class="text-danger" />
+                            <small class="form-text text-muted">Icône emoji (optionnel, max 10 caractères)</small>
+                        </div>
+
+                        <div class="alert alert-light">
+                            <h6 class="alert-heading">
+                                <i class="bi bi-lightbulb me-2"></i>Suggestions d'icônes
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <small class="d-block mb-1">
+                                        🌅 Petit-déjeuner<br>
+                                        ☀️ Déjeuner<br>
+                                        🌙 Dîner<br>
+                                        🍰 Dessert
+                                    </small>
+                                </div>
+                                <div class="col-md-6">
+                                    <small class="d-block">
+                                        🥪 Snack<br>
+                                        🍳 Brunch<br>
+                                        🍽️ Repas<br>
+                                        🥤 Boisson
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                                @if (isSubmitting)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                }
+                                Ajouter la catégorie
+                            </button>
+                            <button type="button" class="btn btn-secondary" @onclick="Cancel">
+                                Annuler
+                            </button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-lightbulb me-2"></i>Conseils
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            <strong>Nom unique:</strong> Utilisez un nom descriptif
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            <strong>Icône emoji:</strong> Choisissez une icône représentative
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-info-circle text-primary me-2"></i>
+                            <strong>Longueur limitée:</strong> Maximum 10 caractères pour l'icône
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-database me-2"></i>Catégories existantes
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (categoriesExistantes == null || !categoriesExistantes.Any())
+                    {
+                        <p class="text-muted">Aucune catégorie existante</p>
+                    }
+                    else
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var categorie in categoriesExistantes.Take(5))
+                            {
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span style="font-size: 1.2rem;">@categorie.Icone</span>
+                                        <strong class="ms-2">@categorie.Libelle</strong>
+                                    </div>
+                                    <span class="badge bg-info">
+                                        @(categorie.Recettes.Count)
+                                    </span>
+                                </div>
+                            }
+                        </div>
+                        @if (categoriesExistantes.Count > 5)
+                        {
+                            <small class="text-muted d-block mt-2">
+                                Et @categoriesExistantes.Count - 5 autres catégories...
+                            </small>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private Categorie nouvelleCategorie = new();
+    private List<Categorie>? categoriesExistantes;
+    private bool isSubmitting = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCategoriesExistantes();
+    }
+
+    private async Task LoadCategoriesExistantes()
+    {
+        try
+        {
+            categoriesExistantes = (await CategorieService.GetAllCategoriesAsync()).ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading existing categories: {ex.Message}");
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (nouvelleCategorie == null) return;
+
+        isSubmitting = true;
+        try
+        {
+            await CategorieService.CreateCategorieAsync(nouvelleCategorie);
+            
+            // Rediriger vers la page de gestion
+            NavigationManager.NavigateTo("/gestion-categories");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error creating category: {ex.Message}");
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/gestion-categories");
+    }
+}

@@ -1,0 +1,182 @@
+@page "/ajouter-recette-ingredient"
+@using SmartNutrition.Models
+@using SmartNutrition.Services
+@using System.ComponentModel.DataAnnotations
+@inject IRecetteService RecetteService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Ajouter un Ingrédient à une Recette</PageTitle>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Ajouter un Ingrédient à une Recette</h4>
+                </div>
+                <div class="card-body">
+                    @if (loading)
+                    {
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Chargement...</span>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <EditForm Model="@recetteIngredient" OnValidSubmit="@HandleValidSubmit">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary class="alert alert-danger" />
+
+                            <div class="mb-3">
+                                <label class="form-label">Recette *</label>
+                                <InputSelect class="form-select" @bind-Value="recetteIngredient.RecetteId">
+                                    <option value="">Sélectionner une recette</option>
+                                    @if (recettes != null)
+                                    {
+                                        @foreach (var recette in recettes)
+                                        {
+                                            <option value="@recette.Id">@recette.Nom (@recette.TypeCuisine?.Libelle)</option>
+                                        }
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="@(() => recetteIngredient.RecetteId)" class="text-danger" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Ingrédient *</label>
+                                <InputSelect class="form-select" @bind-Value="recetteIngredient.IngredientId">
+                                    <option value="">Sélectionner un ingrédient</option>
+                                    @if (ingredients != null)
+                                    {
+                                        @foreach (var ingredient in ingredients)
+                                        {
+                                            <option value="@ingredient.Id">@ingredient.Nom (@ingredient.Unite?.Libelle)</option>
+                                        }
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="@(() => recetteIngredient.IngredientId)" class="text-danger" />
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Quantité *</label>
+                                        <InputNumber class="form-control" @bind-Value="recetteIngredient.Quantite" min="0.01" step="0.01" />
+                                        <ValidationMessage For="@(() => recetteIngredient.Quantite)" class="text-danger" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Unité *</label>
+                                        <InputSelect class="form-select" @bind-Value="recetteIngredient.UniteId">
+                                            <option value="">Sélectionner une unité</option>
+                                            @if (unites != null)
+                                            {
+                                                @foreach (var unite in unites)
+                                                {
+                                                    <option value="@unite.Id">@unite.Libelle (@unite.Symbole)</option>
+                                                }
+                                            }
+                                        </InputSelect>
+                                        <ValidationMessage For="@(() => recetteIngredient.UniteId)" class="text-danger" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Aperçu -->
+                            @if (recetteIngredient.IngredientId > 0 && recetteIngredient.UniteId > 0 && recetteIngredient.Quantite > 0)
+                            {
+                                var selectedIngredient = ingredients?.FirstOrDefault(i => i.Id == recetteIngredient.IngredientId);
+                                var selectedUnite = unites?.FirstOrDefault(u => u.Id == recetteIngredient.UniteId);
+                                var selectedRecette = recettes?.FirstOrDefault(r => r.Id == recetteIngredient.RecetteId);
+                                
+                                <div class="alert alert-info">
+                                    <h6>Aperçu</h6>
+                                    <p class="mb-0">
+                                        <strong>@recetteIngredient.Quantite @selectedUnite?.Symbole @selectedIngredient?.Nom</strong>
+                                        <br />
+                                        <small class="text-muted">Sera ajouté à la recette : @selectedRecette?.Nom</small>
+                                    </p>
+                                </div>
+                            }
+
+                            <div class="d-flex justify-content-between">
+                                <button type="button" class="btn btn-secondary" @onclick="NavigateToGestionRecetteIngredients">
+                                    <i class="bi bi-arrow-left"></i> Retour
+                                </button>
+                                <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                                    @if (isSubmitting)
+                                    {
+                                        <span class="spinner-border spinner-border-sm" role="status"></span>
+                                        <span class="visually-hidden">Chargement...</span>
+                                    }
+                                    <i class="bi bi-plus-circle"></i> Ajouter
+                                </button>
+                            </div>
+                        </EditForm>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private RecetteIngredient recetteIngredient = new RecetteIngredient();
+    private List<Recette>? recettes;
+    private List<Ingredient>? ingredients;
+    private List<Unite>? unites;
+    private bool loading = true;
+    private bool isSubmitting = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadReferenceData();
+    }
+
+    private async Task LoadReferenceData()
+    {
+        loading = true;
+        try
+        {
+            recettes = (await RecetteService.GetRecettesAsync()).ToList();
+            ingredients = (await RecetteService.GetIngredientsAsync()).ToList();
+            unites = (await RecetteService.GetUnitesAsync()).ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading reference data: {ex.Message}");
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private void NavigateToGestionRecetteIngredients()
+    {
+        NavigationManager.NavigateTo("/gestion-recette-ingredients");
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (isSubmitting) return;
+
+        isSubmitting = true;
+        try
+        {
+            await RecetteService.AddRecetteIngredientAsync(recetteIngredient);
+            NavigationManager.NavigateTo("/gestion-recette-ingredients");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving recette ingredient: {ex.Message}");
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+}

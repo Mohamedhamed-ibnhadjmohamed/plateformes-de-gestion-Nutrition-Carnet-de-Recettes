@@ -1,0 +1,33 @@
+@implements IAsyncDisposable
+<link rel="stylesheet" href="./Components/UI/ReconnectModal.razor.css" />
+
+<div id="reconnect-modal" class="reconnect-modal" style="display: none;">
+    <div class="reconnect-modal-content">
+        <h3>Connection Lost</h3>
+        <p>Attempting to reconnect...</p>
+        <button class="btn btn-primary" onclick="window.location.reload()">Reload</button>
+    </div>
+</div>
+
+@code {
+    [Inject]
+    private IJSRuntime JSRuntime { get; set; } = default!;
+
+    private IJSObjectReference? module;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./Components/UI/ReconnectModal.razor.js");
+        }
+    }
+
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        if (module is not null)
+        {
+            await module.DisposeAsync();
+        }
+    }
+}

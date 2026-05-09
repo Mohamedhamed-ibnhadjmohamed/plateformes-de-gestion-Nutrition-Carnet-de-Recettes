@@ -1,0 +1,176 @@
+@page "/detail-categorie/{Id:int}"
+@using SmartNutrition.Models
+@using SmartNutrition.Services
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+@inject ICategorieService CategorieService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Détail de la Catégorie</PageTitle>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            @if (loading)
+            {
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Chargement...</span>
+                    </div>
+                </div>
+            }
+            else if (categorie == null)
+            {
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle"></i> Catégorie non trouvée.
+                </div>
+            }
+            else
+            {
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">
+                            <span style="font-size: 1.5rem;">@categorie.Icone</span>
+                            @categorie.Libelle
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Informations générales</h6>
+                                <table class="table table-sm">
+                                    <tr>
+                                        <th>ID:</th>
+                                        <td>@categorie.Id</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Libellé:</th>
+                                        <td><strong>@categorie.Libelle</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Icône:</th>
+                                        <td><span style="font-size: 1.2rem;">@categorie.Icone</span></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Nombre de recettes:</th>
+                                        <td>
+                                            <span class="badge bg-info">@categorie.Recettes?.Count</span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Statistiques</h6>
+                                <div class="alert alert-info">
+                                    <div class="row text-center">
+                                        <div class="col-4">
+                                            <h3 class="mb-0">@(categorie.Recettes?.Count ?? 0)</h3>
+                                            <small class="text-muted">Recettes</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (categorie.Recettes?.Any() == true)
+                        {
+                            <div class="mt-4">
+                                <h6>Recettes utilisant cette catégorie</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Nom</th>
+                                                <th>Type de cuisine</th>
+                                                <th>Personnes</th>
+                                                <th>Temps</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var recette in categorie.Recettes.Take(10))
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        <strong>@recette.Nom</strong>
+                                                    </td>
+                                                    <td>
+                                                        @recette.TypeCuisine?.Libelle
+                                                    </td>
+                                                    <td>@recette.NbPersonnes</td>
+                                                    <td>@recette.DureePreparation min</td>
+                                                    <td>
+                                                        <NavLink href="@($"/modifier-recette/{recette.Id}")" 
+                                                                 class="btn btn-sm btn-outline-primary">
+                                                            <i class="bi bi-pencil"></i>
+                                                        </NavLink>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                @if ((categorie.Recettes?.Count ?? 0) > 10)
+                                {
+                                    <div class="text-center mt-3">
+                                        <small class="text-muted">
+                                            Affichage des 10 premières recettes sur @(categorie.Recettes?.Count ?? 0) au total
+                                        </small>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-warning mt-4">
+                                <i class="bi bi-info-circle"></i> Aucune recette n'utilise actuellement cette catégorie.
+                            </div>
+                        }
+                    </div>
+                    <div class="card-footer">
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-secondary" @onclick="@(() => NavigationManager.NavigateTo("/gestion-categories"))">
+                                <i class="bi bi-arrow-left"></i> Retour à la liste
+                            </button>
+                            <NavLink href="@($"/modifier-categorie/{categorie.Id}")" class="btn btn-primary">
+                                <i class="bi bi-pencil"></i> Modifier la catégorie
+                            </NavLink>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Categorie? categorie;
+    private bool loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCategorie();
+    }
+
+    private async Task LoadCategorie()
+    {
+        loading = true;
+        try
+        {
+            var categories = await CategorieService.GetAllCategoriesAsync();
+            categorie = categories.FirstOrDefault(c => c.Id == Id);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading category: {ex.Message}");
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+}

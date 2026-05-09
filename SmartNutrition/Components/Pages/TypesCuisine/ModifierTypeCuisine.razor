@@ -1,0 +1,255 @@
+@page "/gestion-types-cuisine/modifier/{id:int}"
+@using SmartNutrition.Models
+@using SmartNutrition.Services
+@using SmartNutrition.Components.UI
+@inject ITypeCuisineService TypeCuisineService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Modifier un Type de Cuisine</PageTitle>
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <NavLink href="/gestion-types-cuisine">Gestion des Types de Cuisine</NavLink>
+                    </li>
+                    <li class="breadcrumb-item active">Modifier un type de cuisine</li>
+                </ol>
+            </nav>
+            <h2>Modifier le type de cuisine</h2>
+            <p class="text-muted">Modifiez les informations du type de cuisine</p>
+        </div>
+    </div>
+
+    @if (loading)
+    {
+        <div class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Chargement...</span>
+            </div>
+        </div>
+    }
+    else if (typeCuisine == null)
+    {
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            Type de cuisine non trouvé.
+            <NavLink href="/gestion-types-cuisine" class="alert-link ms-2">Retour à la gestion des types de cuisine</NavLink>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <EditForm Model="@typeCuisine" OnValidSubmit="HandleValidSubmit">
+                            <DataAnnotationsValidator />
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Libellé *</label>
+                                <InputText class="form-control" @bind-Value="typeCuisine.Libelle" 
+                                           placeholder="ex: Tunisienne, Française, Italienne" />
+                                <ValidationMessage For="@(() => typeCuisine.Libelle)" class="text-danger" />
+                                <small class="form-text text-muted">Nom du type de cuisine</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Pays</label>
+                                <InputText class="form-control" @bind-Value="typeCuisine.Pays" 
+                                           placeholder="ex: Tunisie, France, Italie" />
+                                <ValidationMessage For="@(() => typeCuisine.Pays)" class="text-danger" />
+                                <small class="form-text text-muted">Pays d'origine (optionnel)</small>
+                            </div>
+
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle me-2"></i>
+                                <strong>ID du type de cuisine:</strong> @typeCuisine.Id
+                                <br>
+                                <strong>Recettes associées:</strong> @typeCuisine.NombreRecettes
+                                <br>
+                                <strong>Date de création:</strong> @typeCuisine.DateCreation.ToString("dd/MM/yyyy HH:mm")
+                                @if (typeCuisine.DateModification.HasValue)
+                                {
+                                    <br>
+                                    <strong>Dernière modification:</strong> @typeCuisine.DateModification.Value.ToString("dd/MM/yyyy HH:mm")
+                                }
+                            </div>
+
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                                    @if (isSubmitting)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                    }
+                                    Enregistrer les modifications
+                                </button>
+                                <button type="button" class="btn btn-secondary" @onclick="Cancel">
+                                    Annuler
+                                </button>
+                            </div>
+                        </EditForm>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Recettes utilisant ce type de cuisine</h5>
+                    </div>
+                    <div class="card-body">
+                        @if (typeCuisine.Recettes == null || !typeCuisine.Recettes.Any())
+                        {
+                            <p class="text-muted">Aucune recette n'utilise ce type de cuisine</p>
+                        }
+                        else
+                        {
+                            <div class="list-group">
+                                @foreach (var recette in typeCuisine.Recettes)
+                                {
+                                    <div class="list-group-item">
+                                        <strong>@recette.Nom</strong>
+                                        <br>
+                                        <small class="text-muted">
+                                            @if (recette.DureePreparation.HasValue)
+                                            {
+                                                <text><i class="bi bi-clock me-1"></i>@recette.DureePreparation min</text>
+                                            }
+                                            <span class="ms-2">
+                                                <i class="bi bi-people me-1"></i>@recette.NbPersonnes personne(s)
+                                            </span>
+                                        </small>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Actions</h5>
+                    </div>
+                    <div class="card-body">
+                        <button class="btn btn-outline-danger w-100" 
+                                @onclick="ShowDeleteModal"
+                                disabled="@(typeCuisine.Recettes?.Count > 0)">
+                            <i class="bi bi-trash me-2"></i>
+                            Supprimer ce type de cuisine
+                        </button>
+                        @if (typeCuisine.Recettes?.Count > 0)
+                        {
+                            <small class="text-muted d-block mt-2">
+                                Impossible de supprimer ce type de cuisine car il est utilisé par des recettes
+                            </small>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<ConfirmationModal Show="showDeleteModal"
+                   Title="Supprimer un type de cuisine"
+                   Message="@(typeCuisine != null ? $"Êtes-vous sûr de vouloir supprimer le type de cuisine {typeCuisine.Libelle} ?" : "Êtes-vous sûr de vouloir supprimer ce type de cuisine ?")"
+                   WarningMessage="@(typeCuisine?.Recettes?.Count > 0 ? $"Attention : {typeCuisine.Recettes.Count} recette(s) utilisent ce type de cuisine." : null)"
+                   ConfirmText="Supprimer"
+                   CancelText="Annuler"
+                   ConfirmButtonClass="btn-danger"
+                   ConfirmDisabled="@(typeCuisine?.Recettes?.Count > 0)"
+                   OnConfirm="ConfirmDelete"
+                   OnCancel="HideDeleteModal" />
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private TypeCuisine? typeCuisine;
+    private bool loading = true;
+    private bool isSubmitting = false;
+    private bool showDeleteModal = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTypeCuisine();
+    }
+
+    private async Task LoadTypeCuisine()
+    {
+        loading = true;
+        try
+        {
+            typeCuisine = await TypeCuisineService.GetTypeCuisineByIdAsync(Id);
+            if (typeCuisine == null)
+            {
+                Console.WriteLine($"TypeCuisine with ID {Id} not found");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading type cuisine: {ex.Message}");
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (typeCuisine == null) return;
+
+        isSubmitting = true;
+        try
+        {
+            await TypeCuisineService.UpdateTypeCuisineAsync(typeCuisine.Id, typeCuisine);
+            
+            // Rediriger vers la page de gestion avec un message de succès
+            NavigationManager.NavigateTo("/gestion-types-cuisine");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error updating type cuisine: {ex.Message}");
+            // TODO: Afficher un message d'erreur à l'utilisateur
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/gestion-types-cuisine");
+    }
+
+    private void ShowDeleteModal()
+    {
+        showDeleteModal = true;
+    }
+
+    private void HideDeleteModal()
+    {
+        showDeleteModal = false;
+    }
+
+    private async Task ConfirmDelete()
+    {
+        if (typeCuisine == null) return;
+
+        try
+        {
+            await TypeCuisineService.DeleteTypeCuisineAsync(typeCuisine.Id);
+            NavigationManager.NavigateTo("/gestion-types-cuisine");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting type cuisine: {ex.Message}");
+            HideDeleteModal();
+        }
+    }
+}

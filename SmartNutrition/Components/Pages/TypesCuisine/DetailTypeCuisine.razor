@@ -1,0 +1,214 @@
+@page "/detail-type-cuisine/{Id:int}"
+@using SmartNutrition.Models
+@using SmartNutrition.Services
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+@inject ITypeCuisineService TypeCuisineService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Détail du Type de Cuisine</PageTitle>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            @if (loading)
+            {
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Chargement...</span>
+                    </div>
+                </div>
+            }
+            else if (typeCuisine == null)
+            {
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle"></i> Type de cuisine non trouvé.
+                </div>
+            }
+            else
+            {
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">
+                            <i class="bi bi-globe"></i>
+                            @typeCuisine.Libelle
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Informations générales</h6>
+                                <table class="table table-sm">
+                                    <tr>
+                                        <th>ID:</th>
+                                        <td>@typeCuisine.Id</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Libellé:</th>
+                                        <td><strong>@typeCuisine.Libelle</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Pays d'origine:</th>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(typeCuisine.Pays))
+                                            {
+                                                <span class="badge bg-secondary">
+                                                    <i class="bi bi-geo-alt me-1"></i>@typeCuisine.Pays
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">Non spécifié</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Affichage:</th>
+                                        <td><strong>@typeCuisine.Affichage</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Nombre de recettes:</th>
+                                        <td>
+                                            <span class="badge bg-info">@typeCuisine.NombreRecettes</span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Informations temporelles</h6>
+                                <div class="alert alert-info">
+                                    <div class="mb-2">
+                                        <i class="bi bi-calendar-plus me-2"></i>
+                                        <strong>Date de création:</strong><br>
+                                        <small>@typeCuisine.DateCreation.ToString("dd/MM/yyyy HH:mm")</small>
+                                    </div>
+                                    @if (typeCuisine.DateModification.HasValue)
+                                    {
+                                        <div>
+                                            <i class="bi bi-pencil-square me-2"></i>
+                                            <strong>Date de modification:</strong><br>
+                                            <small>@typeCuisine.DateModification.Value.ToString("dd/MM/yyyy HH:mm")</small>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="text-muted">
+                                            <i class="bi bi-dash-circle me-2"></i>
+                                            <small>Pas encore modifié</small>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (typeCuisine.Recettes?.Any() == true)
+                        {
+                            <div class="mt-4">
+                                <h6>Recettes de ce type de cuisine</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Nom</th>
+                                                <th>Catégorie</th>
+                                                <th>Personnes</th>
+                                                <th>Temps</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var recette in typeCuisine.Recettes.Take(10))
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        <strong>@recette.Nom</strong>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-info">@recette.Categorie?.Libelle</span>
+                                                    </td>
+                                                    <td>@recette.NbPersonnes</td>
+                                                    <td>
+                                                        @if (recette.DureePreparation.HasValue)
+                                                        {
+                                                            <span>@recette.DureePreparation.Value min</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="text-muted">N/A</span>
+                                                        }
+                                                    </td>
+                                                    <td>
+                                                        <NavLink href="@($"/modifier-recette/{recette.Id}")" 
+                                                                 class="btn btn-sm btn-outline-primary">
+                                                            <i class="bi bi-pencil"></i>
+                                                        </NavLink>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                @if ((typeCuisine.Recettes?.Count ?? 0) > 10)
+                                {
+                                    <div class="text-center mt-3">
+                                        <small class="text-muted">
+                                            Affichage des 10 premières recettes sur @(typeCuisine.Recettes?.Count ?? 0) au total
+                                        </small>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-warning mt-4">
+                                <i class="bi bi-info-circle"></i> Aucune recette n'utilise actuellement ce type de cuisine.
+                            </div>
+                        }
+                    </div>
+                    <div class="card-footer">
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-secondary" @onclick="@(() => NavigationManager.NavigateTo("/gestion-types-cuisine"))">
+                                <i class="bi bi-arrow-left"></i> Retour à la liste
+                            </button>
+                            <NavLink href="@($"/modifier-type-cuisine/{typeCuisine.Id}")" class="btn btn-primary">
+                                <i class="bi bi-pencil"></i> Modifier le type de cuisine
+                            </NavLink>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private TypeCuisine? typeCuisine;
+    private bool loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTypeCuisine();
+    }
+
+    private async Task LoadTypeCuisine()
+    {
+        loading = true;
+        try
+        {
+            var typesCuisine = await TypeCuisineService.GetAllTypesCuisineAsync();
+            typeCuisine = typesCuisine.FirstOrDefault(tc => tc.Id == Id);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading type cuisine: {ex.Message}");
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+}

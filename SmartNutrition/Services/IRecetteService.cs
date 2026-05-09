@@ -17,5 +17,13 @@ namespace SmartNutrition.Services
         Task UpdateIngredientAsync(Ingredient ingredient);
         Task DeleteRecetteAsync(int id);
         Task DeleteIngredientAsync(int id);
+        
+        // Méthodes pour RecetteIngredient
+        Task<List<RecetteIngredient>> GetRecetteIngredientsAsync();
+        Task<RecetteIngredient?> GetRecetteIngredientByIdAsync(int id);
+        Task<List<RecetteIngredient>> GetRecetteIngredientsByRecetteIdAsync(int recetteId);
+        Task AddRecetteIngredientAsync(RecetteIngredient recetteIngredient);
+        Task UpdateRecetteIngredientAsync(RecetteIngredient recetteIngredient);
+        Task DeleteRecetteIngredientAsync(int id);
     }
 }

@@ -1,0 +1,221 @@
+@page "/detail-recette-ingredient/{Id:int}"
+@using SmartNutrition.Models
+@using SmartNutrition.Services
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+@inject IRecetteService RecetteService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Détail de l'Ingrédient de Recette</PageTitle>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            @if (loading)
+            {
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Chargement...</span>
+                    </div>
+                </div>
+            }
+            else if (recetteIngredient == null)
+            {
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle"></i> Ingrédient de recette non trouvé.
+                </div>
+            }
+            else
+            {
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">
+                            <i class="bi bi-link-45deg"></i>
+                            @recetteIngredient.Affichage
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Informations générales</h6>
+                                <table class="table table-sm">
+                                    <tr>
+                                        <th>ID:</th>
+                                        <td>@recetteIngredient.Id</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Quantité:</th>
+                                        <td><strong>@recetteIngredient.Quantite</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Unité:</th>
+                                        <td>
+                                            <span class="badge bg-secondary">@recetteIngredient.Unite?.Libelle (@recetteIngredient.Unite?.Symbole)</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Affichage:</th>
+                                        <td><strong>@recetteIngredient.Affichage</strong></td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Valeurs nutritionnelles</h6>
+                                <div class="alert alert-info">
+                                    @{
+                                        var calories = (recetteIngredient.Ingredient?.CaloriesParUnite ?? 0) * recetteIngredient.Quantite;
+                                        var proteines = (recetteIngredient.Ingredient?.Proteines ?? 0) * recetteIngredient.Quantite;
+                                        var glucides = (recetteIngredient.Ingredient?.Glucides ?? 0) * recetteIngredient.Quantite;
+                                        var lipides = (recetteIngredient.Ingredient?.Lipides ?? 0) * recetteIngredient.Quantite;
+                                    }
+                                    <div class="row text-center">
+                                        <div class="col-6">
+                                            <h5 class="mb-0">@calories.ToString("F0")</h5>
+                                            <small class="text-muted">Calories</small>
+                                        </div>
+                                        <div class="col-6">
+                                            <h5 class="mb-0">@proteines.ToString("F1")</h5>
+                                            <small class="text-muted">Protéines (g)</small>
+                                        </div>
+                                    </div>
+                                    <div class="row text-center mt-3">
+                                        <div class="col-6">
+                                            <h5 class="mb-0">@glucides.ToString("F1")</h5>
+                                            <small class="text-muted">Glucides (g)</small>
+                                        </div>
+                                        <div class="col-6">
+                                            <h5 class="mb-0">@lipides.ToString("F1")</h5>
+                                            <small class="text-muted">Lipides (g)</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <h6>Recette associée</h6>
+                                @if (recetteIngredient.Recette != null)
+                                {
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h6 class="card-title">@recetteIngredient.Recette.Nom</h6>
+                                            <p class="card-text">
+                                                <span class="badge bg-info me-1">@recetteIngredient.Recette.Categorie?.Libelle</span>
+                                                <span class="badge bg-secondary me-1">@recetteIngredient.Recette.TypeCuisine?.Libelle</span>
+                                                <span class="badge bg-primary me-1">@recetteIngredient.Recette.NbPersonnes pers.</span>
+                                                @if (recetteIngredient.Recette.DureePreparation.HasValue)
+                                                {
+                                                    <span class="badge bg-warning">@recetteIngredient.Recette.DureePreparation.Value min</span>
+                                                }
+                                            </p>
+                                            @if (!string.IsNullOrEmpty(recetteIngredient.Recette.Description))
+                                            {
+                                                <p class="card-text text-muted small">@recetteIngredient.Recette.Description</p>
+                                            }
+                                            <NavLink href="@($"/detail-recette/{recetteIngredient.RecetteId}")" 
+                                                     class="btn btn-sm btn-outline-primary">
+                                                <i class="bi bi-eye"></i> Voir la recette
+                                            </NavLink>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="alert alert-warning">
+                                        <i class="bi bi-exclamation-triangle"></i> Aucune recette associée.
+                                    </div>
+                                }
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Ingrédient associé</h6>
+                                @if (recetteIngredient.Ingredient != null)
+                                {
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h6 class="card-title">@recetteIngredient.Ingredient.Nom</h6>
+                                            <p class="card-text">
+                                                <span class="badge bg-secondary me-1">@recetteIngredient.Ingredient.Unite?.Symbole</span>
+                                                <span class="badge bg-warning text-dark me-1">@recetteIngredient.Ingredient.CaloriesParUnite cal/@recetteIngredient.Ingredient.Unite?.Symbole</span>
+                                            </p>
+                                            <div class="row text-center">
+                                                <div class="col-4">
+                                                    <small class="text-muted">Protéines</small>
+                                                    <div>@(recetteIngredient.Ingredient.Proteines?.ToString("F1") ?? "N/A") g</div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <small class="text-muted">Glucides</small>
+                                                    <div>@(recetteIngredient.Ingredient.Glucides?.ToString("F1") ?? "N/A") g</div>
+                                                </div>
+                                                <div class="col-4">
+                                                    <small class="text-muted">Lipides</small>
+                                                    <div>@(recetteIngredient.Ingredient.Lipides?.ToString("F1") ?? "N/A") g</div>
+                                                </div>
+                                            </div>
+                                            <div class="mt-2">
+                                                <small class="text-muted">
+                                                    Utilisé dans @(recetteIngredient.Ingredient.RecetteIngredients?.Count ?? 0) recette(s)
+                                                </small>
+                                            </div>
+                                            <NavLink href="@($"/detail-ingredient/{recetteIngredient.IngredientId}")" 
+                                                     class="btn btn-sm btn-outline-primary">
+                                                <i class="bi bi-eye"></i> Voir l'ingrédient
+                                            </NavLink>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="alert alert-warning">
+                                        <i class="bi bi-exclamation-triangle"></i> Aucun ingrédient associé.
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-secondary" @onclick="@(() => NavigationManager.NavigateTo("/gestion-recette-ingredients"))">
+                                <i class="bi bi-arrow-left"></i> Retour à la liste
+                            </button>
+                            <NavLink href="@($"/modifier-recette-ingredient/{recetteIngredient.Id}")" class="btn btn-primary">
+                                <i class="bi bi-pencil"></i> Modifier l'association
+                            </NavLink>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private RecetteIngredient? recetteIngredient;
+    private bool loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadRecetteIngredient();
+    }
+
+    private async Task LoadRecetteIngredient()
+    {
+        loading = true;
+        try
+        {
+            var recetteIngredients = await RecetteService.GetRecetteIngredientsAsync();
+            recetteIngredient = recetteIngredients.FirstOrDefault(ri => ri.Id == Id);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading recette ingredient: {ex.Message}");
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+}

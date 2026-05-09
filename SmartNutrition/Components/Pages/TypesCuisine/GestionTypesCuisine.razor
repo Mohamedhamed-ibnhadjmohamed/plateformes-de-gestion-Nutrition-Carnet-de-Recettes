@@ -1,0 +1,188 @@
+@page "/gestion-types-cuisine"
+@using SmartNutrition.Models
+@using SmartNutrition.Services
+@using SmartNutrition.Components.UI
+@inject ITypeCuisineService TypeCuisineService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Gestion des Types de Cuisine</PageTitle>
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>Gestion des Types de Cuisine</h2>
+            <p class="text-muted">Gérez les types de cuisine pour classer vos recettes</p>
+        </div>
+        <div class="col-auto">
+            <NavLink href="/gestion-types-cuisine/ajouter" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-2"></i>Ajouter un type de cuisine
+            </NavLink>
+        </div>
+    </div>
+
+    @if (loading)
+    {
+        <div class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Chargement...</span>
+            </div>
+        </div>
+    }
+    else if (typesCuisine == null || !typesCuisine.Any())
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>
+            Aucun type de cuisine trouvé. Cliquez sur "Ajouter un type de cuisine" pour commencer.
+        </div>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Libellé</th>
+                                <th>Pays</th>
+                                <th>Recettes</th>
+                                <th>Création</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var typeCuisine in typesCuisine)
+                            {
+                                <tr>
+                                    <td>@typeCuisine.Id</td>
+                                    <td>@typeCuisine.Libelle</td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(typeCuisine.Pays))
+                                        {
+                                            <span class="badge bg-secondary">
+                                                <i class="bi bi-geo-alt me-1"></i>@typeCuisine.Pays
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">
+                                            @(typeCuisine.NombreRecettes) recette(s)
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">
+                                            <i class="bi bi-calendar-plus me-1"></i>
+                                            @typeCuisine.DateCreation.ToString("dd/MM/yyyy")
+                                            @if (typeCuisine.DateModification.HasValue)
+                                            {
+                                                <br>
+                                                <i class="bi bi-pencil-square me-1"></i>
+                                                @typeCuisine.DateModification.Value.ToString("dd/MM/yyyy")
+                                            }
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <NavLink href="@($"/gestion-types-cuisine/modifier/{typeCuisine.Id}")" 
+                                                     class="btn btn-sm btn-outline-primary"
+                                                     title="Modifier">
+                                                <i class="bi bi-pencil"></i>
+                                            </NavLink>
+                                            <NavLink href="@($"/detail-type-cuisine/{typeCuisine.Id}")" 
+                                                     class="btn btn-sm btn-outline-info"
+                                                     title="Voir détail">
+                                                <i class="bi bi-eye"></i>
+                                            </NavLink>
+                                            <button class="btn btn-sm btn-outline-danger" 
+                                                    @onclick="() => ShowDeleteModal(typeCuisine)"
+                                                    title="Supprimer"
+                                                    disabled="@(typeCuisine.Recettes?.Count > 0)">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<ConfirmationModal Show="showDeleteModal"
+                   Title="Supprimer un type de cuisine"
+                   Message="@(deletingTypeCuisine != null ? $"Êtes-vous sûr de vouloir supprimer le type de cuisine {deletingTypeCuisine.Libelle} ?" : "Êtes-vous sûr de vouloir supprimer ce type de cuisine ?")"
+                   WarningMessage="@(deletingTypeCuisine?.Recettes?.Count > 0 ? $"Attention : {deletingTypeCuisine.Recettes.Count} recette(s) utilisent ce type de cuisine. Vous devez d'abord modifier ou supprimer ces recettes." : null)"
+                   ConfirmText="Supprimer"
+                   CancelText="Annuler"
+                   ConfirmButtonClass="btn-danger"
+                   ConfirmDisabled="@(deletingTypeCuisine?.Recettes?.Count > 0)"
+                   OnConfirm="ConfirmDelete"
+                   OnCancel="HideDeleteModal" />
+
+@code {
+    private List<TypeCuisine>? typesCuisine;
+    private TypeCuisine? deletingTypeCuisine;
+    private bool loading = true;
+    private bool showDeleteModal = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTypesCuisine();
+    }
+
+    private async Task LoadTypesCuisine()
+    {
+        loading = true;
+        try
+        {
+            var typesCuisineList = await TypeCuisineService.GetAllTypesCuisineAsync();
+            typesCuisine = typesCuisineList.ToList();
+        }
+        catch (Exception ex)
+        {
+            // Handle error
+            Console.WriteLine($"Error loading types cuisine: {ex.Message}");
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private void ShowDeleteModal(TypeCuisine typeCuisine)
+    {
+        deletingTypeCuisine = typeCuisine;
+        showDeleteModal = true;
+    }
+
+    private void HideDeleteModal()
+    {
+        showDeleteModal = false;
+        deletingTypeCuisine = null;
+    }
+
+    private async Task ConfirmDelete()
+    {
+        if (deletingTypeCuisine == null) return;
+
+        try
+        {
+            await TypeCuisineService.DeleteTypeCuisineAsync(deletingTypeCuisine.Id);
+            HideDeleteModal();
+            await LoadTypesCuisine();
+        }
+        catch (Exception ex)
+        {
+            // Handle error
+            Console.WriteLine($"Error deleting type cuisine: {ex.Message}");
+        }
+    }
+}

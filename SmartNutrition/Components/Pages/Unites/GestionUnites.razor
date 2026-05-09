@@ -1,0 +1,167 @@
+@page "/gestion-unites"
+@using SmartNutrition.Models
+@using SmartNutrition.Services
+@using SmartNutrition.Components.UI
+@inject IUniteService UniteService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Gestion des Unités</PageTitle>
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>Gestion des Unités</h2>
+            <p class="text-muted">Gérez les unités de mesure utilisées dans vos recettes</p>
+        </div>
+        <div class="col-auto">
+            <NavLink href="/gestion-unites/ajouter" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-2"></i>Ajouter une unité
+            </NavLink>
+        </div>
+    </div>
+
+    @if (loading)
+    {
+        <div class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Chargement...</span>
+            </div>
+        </div>
+    }
+    else if (unites == null || !unites.Any())
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>
+            Aucune unité trouvée. Cliquez sur "Ajouter une unité" pour commencer.
+        </div>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Libellé</th>
+                                <th>Symbole</th>
+                                <th>Ingrédients associés</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var unite in unites)
+                            {
+                                <tr>
+                                    <td>@unite.Id</td>
+                                    <td>@unite.Libelle</td>
+                                    <td><code>@unite.Symbole</code></td>
+                                    <td>
+                                        <span class="badge bg-info">
+                                            @(unite.Ingredients?.Count ?? 0) ingrédient(s)
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <NavLink href="@($"/gestion-unites/modifier/{unite.Id}")" 
+                                                     class="btn btn-sm btn-outline-primary"
+                                                     title="Modifier">
+                                                <i class="bi bi-pencil"></i>
+                                            </NavLink>
+                                            <NavLink href="@($"/detail-unite/{unite.Id}")" 
+                                                     class="btn btn-sm btn-outline-info"
+                                                     title="Voir détail">
+                                                <i class="bi bi-eye"></i>
+                                            </NavLink>
+                                            <button class="btn btn-sm btn-outline-danger" 
+                                                    @onclick="() => ShowDeleteModal(unite)"
+                                                    title="Supprimer"
+                                                    disabled="@(unite.Ingredients?.Count > 0)">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+
+<ConfirmationModal Show="showDeleteModal"
+                   Title="Supprimer une unité"
+                   Message="@(deletingUnite != null ? $"Êtes-vous sûr de vouloir supprimer l'unité {deletingUnite.Libelle} ?" : "Êtes-vous sûr de vouloir supprimer cette unité ?")"
+                   WarningMessage="@(deletingUnite?.Ingredients?.Count > 0 ? $"Attention : {deletingUnite.Ingredients.Count} ingrédient(s) utilisent cette unité. Vous devez d'abord modifier ou supprimer ces ingrédients." : null)"
+                   ConfirmText="Supprimer"
+                   CancelText="Annuler"
+                   ConfirmButtonClass="btn-danger"
+                   ConfirmDisabled="@(deletingUnite?.Ingredients?.Count > 0)"
+                   OnConfirm="ConfirmDelete"
+                   OnCancel="HideDeleteModal" />
+
+@code {
+    private List<Unite>? unites;
+    private Unite? deletingUnite;
+    private bool loading = true;
+    private bool showDeleteModal = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUnites();
+    }
+
+    private async Task LoadUnites()
+    {
+        loading = true;
+        try
+        {
+            var unitesList = await UniteService.GetAllUnitesAsync();
+            unites = unitesList.ToList();
+        }
+        catch (Exception ex)
+        {
+            // Handle error
+            Console.WriteLine($"Error loading unites: {ex.Message}");
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+
+    private void ShowDeleteModal(Unite unite)
+    {
+        deletingUnite = unite;
+        showDeleteModal = true;
+    }
+
+    private void HideDeleteModal()
+    {
+        showDeleteModal = false;
+        deletingUnite = null;
+    }
+
+
+    private async Task ConfirmDelete()
+    {
+        if (deletingUnite == null) return;
+
+        try
+        {
+            await UniteService.DeleteUniteAsync(deletingUnite.Id);
+            HideDeleteModal();
+            await LoadUnites();
+        }
+        catch (Exception ex)
+        {
+            // Handle error
+            Console.WriteLine($"Error deleting unite: {ex.Message}");
+        }
+    }
+}

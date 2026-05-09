@@ -1,0 +1,213 @@
+@page "/gestion-categories"
+@using SmartNutrition.Models
+@using SmartNutrition.Services
+@using SmartNutrition.Components.UI
+@inject ICategorieService CategorieService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Gestion des Catégories</PageTitle>
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>Gestion des Catégories</h2>
+            <p class="text-muted">Gérez les catégories de repas</p>
+        </div>
+        <div class="col-auto">
+            <NavLink href="/gestion-categories/ajouter" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-2"></i>Ajouter une catégorie
+            </NavLink>
+        </div>
+    </div>
+
+    <!-- Barre de recherche -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="input-group">
+                <span class="input-group-text">
+                    <i class="bi bi-search"></i>
+                </span>
+                <input type="text" class="form-control" placeholder="Rechercher une catégorie..." 
+                       @bind="searchTerm" @bind:onchange="OnSearchChanged" />
+                <button class="btn btn-outline-secondary" type="button" @onclick="ClearSearch">
+                    <i class="bi bi-x-circle"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    @if (loading)
+    {
+        <div class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Chargement...</span>
+            </div>
+        </div>
+    }
+    else if (categories == null || !categories.Any())
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>
+            @if (!string.IsNullOrEmpty(searchTerm))
+            {
+                <text>Aucune catégorie trouvée pour votre recherche.</text>
+                <button class="btn btn-link p-0 ms-2" @onclick="ClearSearch">
+                    Effacer la recherche
+                </button>
+            }
+            else
+            {
+                <text>Aucune catégorie trouvée. Cliquez sur "Ajouter une catégorie" pour commencer.</text>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="mb-3">
+            <small class="text-muted">
+                @categories.Count() catégor@(categories.Count() > 1 ? "ies" : "ie") trouvée@(categories.Count() > 1 ? "s" : "")
+            </small>
+        </div>
+
+        <!-- Vue Liste -->
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Icône</th>
+                                <th>Libellé</th>
+                                <th>Recettes</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var categorie in categories)
+                            {
+                                <tr>
+                                    <td>
+                                        <span style="font-size: 1.5rem;">@categorie.Icone</span>
+                                    </td>
+                                    <td><strong>@categorie.Libelle</strong></td>
+                                    <td>
+                                        <span class="badge bg-info">@categorie.Recettes.Count</span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <NavLink href="@($"/gestion-categories/modifier/{categorie.Id}")" 
+                                                     class="btn btn-sm btn-outline-primary"
+                                                     title="Modifier">
+                                                <i class="bi bi-pencil"></i>
+                                            </NavLink>
+                                            <NavLink href="@($"/detail-categorie/{categorie.Id}")" 
+                                                     class="btn btn-sm btn-outline-info"
+                                                     title="Voir détail">
+                                                <i class="bi bi-eye"></i>
+                                            </NavLink>
+                                            <button class="btn btn-sm btn-outline-danger" 
+                                                    @onclick="() => ShowDeleteModal(categorie)"
+                                                    title="Supprimer"
+                                                    disabled="@(categorie.Recettes.Count > 0)">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<ConfirmationModal Show="showDeleteModal"
+                   Title="Supprimer une catégorie"
+                   Message="@(deletingCategorie != null ? $"Êtes-vous sûr de vouloir supprimer la catégorie {deletingCategorie.Libelle} ?" : "Êtes-vous sûr de vouloir supprimer cette catégorie ?")"
+                   WarningMessage="@(deletingCategorie?.Recettes.Count > 0 ? $"Attention : {deletingCategorie.Recettes.Count} recette(s) utilisent cette catégorie. Vous devez d'abord modifier ou supprimer ces recettes." : null)"
+                   ConfirmText="Supprimer"
+                   CancelText="Annuler"
+                   ConfirmButtonClass="btn-danger"
+                   ConfirmDisabled="@(deletingCategorie?.Recettes.Count > 0)"
+                   OnConfirm="ConfirmDelete"
+                   OnCancel="HideDeleteModal" />
+
+@code {
+    private List<Categorie>? categories;
+    private Categorie? deletingCategorie;
+    private bool loading = true;
+    private bool showDeleteModal = false;
+    private string searchTerm = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCategories();
+    }
+
+    private async Task LoadCategories()
+    {
+        loading = true;
+        try
+        {
+            categories = (await CategorieService.GetAllCategoriesAsync()).ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading categories: {ex.Message}");
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private async Task OnSearchChanged()
+    {
+        if (!string.IsNullOrEmpty(searchTerm))
+        {
+            categories = (await CategorieService.GetAllCategoriesAsync())
+                .Where(c => c.Libelle.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+        else
+        {
+            await LoadCategories();
+        }
+    }
+
+    private void ClearSearch()
+    {
+        searchTerm = "";
+        _ = Task.Run(LoadCategories);
+    }
+
+    private void ShowDeleteModal(Categorie categorie)
+    {
+        deletingCategorie = categorie;
+        showDeleteModal = true;
+    }
+
+    private void HideDeleteModal()
+    {
+        showDeleteModal = false;
+        deletingCategorie = null;
+    }
+
+    private async Task ConfirmDelete()
+    {
+        if (deletingCategorie == null) return;
+
+        try
+        {
+            await CategorieService.DeleteCategorieAsync(deletingCategorie.Id);
+            HideDeleteModal();
+            await LoadCategories();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting category: {ex.Message}");
+        }
+    }
+}

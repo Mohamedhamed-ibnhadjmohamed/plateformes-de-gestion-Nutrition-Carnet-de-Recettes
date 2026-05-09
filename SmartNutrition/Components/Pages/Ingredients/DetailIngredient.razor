@@ -1,0 +1,198 @@
+@page "/detail-ingredient/{Id:int}"
+@using SmartNutrition.Models
+@using SmartNutrition.Services
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+@inject IIngredientService IngredientService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Détail de l'Ingrédient</PageTitle>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            @if (loading)
+            {
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Chargement...</span>
+                    </div>
+                </div>
+            }
+            else if (ingredient == null)
+            {
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle"></i> Ingrédient non trouvé.
+                </div>
+            }
+            else
+            {
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">
+                            <i class="bi bi-egg-fried"></i>
+                            @ingredient.Nom
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Informations générales</h6>
+                                <table class="table table-sm">
+                                    <tr>
+                                        <th>ID:</th>
+                                        <td>@ingredient.Id</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Nom:</th>
+                                        <td><strong>@ingredient.Nom</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Unité:</th>
+                                        <td>
+                                            <span class="badge bg-secondary">@ingredient.Unite?.Libelle (@ingredient.Unite?.Symbole)</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Calories:</th>
+                                        <td>
+                                            <span class="badge bg-warning text-dark">@ingredient.CaloriesParUnite cal/@ingredient.Unite?.Symbole</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Nombre de recettes:</th>
+                                        <td>
+                                            <span class="badge bg-info">@ingredient.RecetteIngredients?.Count</span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Valeurs nutritionnelles</h6>
+                                <div class="alert alert-info">
+                                    <div class="row text-center">
+                                        <div class="col-6">
+                                            <h5 class="mb-0">@ingredient.CaloriesParUnite</h5>
+                                            <small class="text-muted">Calories</small>
+                                        </div>
+                                        <div class="col-6">
+                                            <h5 class="mb-0">@(ingredient.Proteines?.ToString("F1") ?? "N/A")</h5>
+                                            <small class="text-muted">Protéines (g)</small>
+                                        </div>
+                                    </div>
+                                    <div class="row text-center mt-3">
+                                        <div class="col-6">
+                                            <h5 class="mb-0">@(ingredient.Glucides?.ToString("F1") ?? "N/A")</h5>
+                                            <small class="text-muted">Glucides (g)</small>
+                                        </div>
+                                        <div class="col-6">
+                                            <h5 class="mb-0">@(ingredient.Lipides?.ToString("F1") ?? "N/A")</h5>
+                                            <small class="text-muted">Lipides (g)</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (ingredient.RecetteIngredients?.Any() == true)
+                        {
+                            <div class="mt-4">
+                                <h6>Recettes utilisant cet ingrédient</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Recette</th>
+                                                <th>Quantité</th>
+                                                <th>Type de cuisine</th>
+                                                <th>Personnes</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var recetteIngredient in ingredient.RecetteIngredients.Take(10))
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        <strong>@recetteIngredient.Recette?.Nom</strong>
+                                                    </td>
+                                                    <td>@recetteIngredient.Quantite @recetteIngredient.Unite?.Symbole</td>
+                                                    <td>
+                                                        @recetteIngredient.Recette?.TypeCuisine?.Libelle
+                                                    </td>
+                                                    <td>@recetteIngredient.Recette?.NbPersonnes</td>
+                                                    <td>
+                                                        <NavLink href="@($"/modifier-recette/{recetteIngredient.RecetteId}")" 
+                                                                 class="btn btn-sm btn-outline-primary">
+                                                            <i class="bi bi-pencil"></i>
+                                                        </NavLink>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                @if ((ingredient.RecetteIngredients?.Count ?? 0) > 10)
+                                {
+                                    <div class="text-center mt-3">
+                                        <small class="text-muted">
+                                            Affichage des 10 premières recettes sur @(ingredient.RecetteIngredients?.Count ?? 0) au total
+                                        </small>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-warning mt-4">
+                                <i class="bi bi-info-circle"></i> Aucune recette n'utilise actuellement cet ingrédient.
+                            </div>
+                        }
+                    </div>
+                    <div class="card-footer">
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-secondary" @onclick="@(() => NavigationManager.NavigateTo("/gestion-ingredients"))">
+                                <i class="bi bi-arrow-left"></i> Retour à la liste
+                            </button>
+                            <NavLink href="@($"/modifier-ingredient/{ingredient.Id}")" class="btn btn-primary">
+                                <i class="bi bi-pencil"></i> Modifier l'ingrédient
+                            </NavLink>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Ingredient? ingredient;
+    private bool loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadIngredient();
+    }
+
+    private async Task LoadIngredient()
+    {
+        loading = true;
+        try
+        {
+            var ingredients = await IngredientService.GetAllIngredientsAsync();
+            ingredient = ingredients.FirstOrDefault(i => i.Id == Id);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading ingredient: {ex.Message}");
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+}

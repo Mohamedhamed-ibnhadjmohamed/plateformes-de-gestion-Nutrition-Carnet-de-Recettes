@@ -1,0 +1,59 @@
+<!-- Modal de formulaire -->
+@if (Show)
+{
+    <div class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.5);" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@Title</h5>
+                    <button type="button" class="btn-close" @onclick="OnCancel"></button>
+                </div>
+                <div class="modal-body">
+                    @BodyContent
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="OnCancel">@CancelText</button>
+                    <button type="submit" class="btn @SubmitButtonClass" @onclick="OnSubmit" disabled="@SubmitDisabled">
+                        @if (IsSubmitting)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                        }
+                        @SubmitText
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public bool Show { get; set; }
+
+    [Parameter]
+    public string Title { get; set; } = "Formulaire";
+
+    [Parameter]
+    public string SubmitText { get; set; } = "Enregistrer";
+
+    [Parameter]
+    public string CancelText { get; set; } = "Annuler";
+
+    [Parameter]
+    public string SubmitButtonClass { get; set; } = "btn-primary";
+
+    [Parameter]
+    public bool SubmitDisabled { get; set; }
+
+    [Parameter]
+    public bool IsSubmitting { get; set; }
+
+    [Parameter]
+    public RenderFragment BodyContent { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback OnSubmit { get; set; }
+
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+}

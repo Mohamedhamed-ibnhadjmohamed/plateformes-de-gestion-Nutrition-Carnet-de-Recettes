@@ -1,0 +1,240 @@
+@page "/gestion-unites/modifier/{id:int}"
+@using SmartNutrition.Models
+@using SmartNutrition.Services
+@using SmartNutrition.Components.UI
+@inject IUniteService UniteService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Modifier une Unité</PageTitle>
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <NavLink href="/gestion-unites">Gestion des Unités</NavLink>
+                    </li>
+                    <li class="breadcrumb-item active">Modifier une unité</li>
+                </ol>
+            </nav>
+            <h2>Modifier l'unité</h2>
+            <p class="text-muted">Modifiez les informations de l'unité de mesure</p>
+        </div>
+    </div>
+
+    @if (loading)
+    {
+        <div class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Chargement...</span>
+            </div>
+        </div>
+    }
+    else if (unite == null)
+    {
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            Unité non trouvée.
+            <NavLink href="/gestion-unites" class="alert-link ms-2">Retour à la gestion des unités</NavLink>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <EditForm Model="@unite" OnValidSubmit="HandleValidSubmit">
+                            <DataAnnotationsValidator />
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Libellé *</label>
+                                <InputText class="form-control" @bind-Value="unite.Libelle" 
+                                           placeholder="ex: Gramme, Kilogramme, Millilitre" />
+                                <ValidationMessage For="@(() => unite.Libelle)" class="text-danger" />
+                                <small class="form-text text-muted">Nom complet de l'unité de mesure</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Symbole *</label>
+                                <InputText class="form-control" @bind-Value="unite.Symbole" 
+                                           placeholder="ex: g, kg, ml, pcs" />
+                                <ValidationMessage For="@(() => unite.Symbole)" class="text-danger" />
+                                <small class="form-text text-muted">Abréviation utilisée dans les recettes</small>
+                            </div>
+
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle me-2"></i>
+                                <strong>ID de l'unité:</strong> @unite.Id
+                                <br>
+                                <strong>Ingrédients associés:</strong> @(unite.Ingredients?.Count ?? 0)
+                            </div>
+
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                                    @if (isSubmitting)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                    }
+                                    Enregistrer les modifications
+                                </button>
+                                <button type="button" class="btn btn-secondary" @onclick="Cancel">
+                                    Annuler
+                                </button>
+                            </div>
+                        </EditForm>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Ingrédients utilisant cette unité</h5>
+                    </div>
+                    <div class="card-body">
+                        @if (unite.Ingredients == null || !unite.Ingredients.Any())
+                        {
+                            <p class="text-muted">Aucun ingrédient n'utilise cette unité</p>
+                        }
+                        else
+                        {
+                            <div class="list-group">
+                                @foreach (var ingredient in unite.Ingredients)
+                                {
+                                    <div class="list-group-item">
+                                        <strong>@ingredient.Nom</strong>
+                                        <br>
+                                        <small class="text-muted">@ingredient.CaloriesParUnite cal/unité</small>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Actions</h5>
+                    </div>
+                    <div class="card-body">
+                        <button class="btn btn-outline-danger w-100" 
+                                @onclick="ShowDeleteModal"
+                                disabled="@(unite.Ingredients?.Count > 0)">
+                            <i class="bi bi-trash me-2"></i>
+                            Supprimer cette unité
+                        </button>
+                        @if (unite.Ingredients?.Count > 0)
+                        {
+                            <small class="text-muted d-block mt-2">
+                                Impossible de supprimer cette unité car elle est utilisée par des ingrédients
+                            </small>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<ConfirmationModal Show="showDeleteModal"
+                   Title="Supprimer une unité"
+                   Message="@(unite != null ? $"Êtes-vous sûr de vouloir supprimer l'unité {unite.Libelle} ?" : "Êtes-vous sûr de vouloir supprimer cette unité ?")"
+                   WarningMessage="@(unite?.Ingredients?.Count > 0 ? $"Attention : {unite.Ingredients.Count} ingrédient(s) utilisent cette unité." : null)"
+                   ConfirmText="Supprimer"
+                   CancelText="Annuler"
+                   ConfirmButtonClass="btn-danger"
+                   ConfirmDisabled="@(unite?.Ingredients?.Count > 0)"
+                   OnConfirm="ConfirmDelete"
+                   OnCancel="HideDeleteModal" />
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Unite? unite;
+    private bool loading = true;
+    private bool isSubmitting = false;
+    private bool showDeleteModal = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUnite();
+    }
+
+    private async Task LoadUnite()
+    {
+        loading = true;
+        try
+        {
+            unite = await UniteService.GetUniteByIdAsync(Id);
+            if (unite == null)
+            {
+                Console.WriteLine($"Unite with ID {Id} not found");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading unite: {ex.Message}");
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (unite == null) return;
+
+        isSubmitting = true;
+        try
+        {
+            await UniteService.UpdateUniteAsync(unite.Id, unite);
+            
+            // Rediriger vers la page de gestion avec un message de succès
+            NavigationManager.NavigateTo("/gestion-unites");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error updating unite: {ex.Message}");
+            // TODO: Afficher un message d'erreur à l'utilisateur
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/gestion-unites");
+    }
+
+    private void ShowDeleteModal()
+    {
+        showDeleteModal = true;
+    }
+
+    private void HideDeleteModal()
+    {
+        showDeleteModal = false;
+    }
+
+    private async Task ConfirmDelete()
+    {
+        if (unite == null) return;
+
+        try
+        {
+            await UniteService.DeleteUniteAsync(unite.Id);
+            NavigationManager.NavigateTo("/gestion-unites");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting unite: {ex.Message}");
+            HideDeleteModal();
+        }
+    }
+}

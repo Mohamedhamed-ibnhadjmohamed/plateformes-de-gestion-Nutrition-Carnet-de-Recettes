@@ -1,0 +1,290 @@
+@page "/gestion-recettes"
+@using SmartNutrition.Models
+@using SmartNutrition.Services
+@using SmartNutrition.Components.UI
+@inject IRecetteService RecetteService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Gestion des Recettes</PageTitle>
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>Gestion des Recettes</h2>
+            <p class="text-muted">Gérez votre carnet de recettes</p>
+        </div>
+        <div class="col-auto">
+            <NavLink href="/gestion-recettes/ajouter" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-2"></i>Ajouter une recette
+            </NavLink>
+        </div>
+    </div>
+
+    <!-- Barre de recherche -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="input-group">
+                <span class="input-group-text">
+                    <i class="bi bi-search"></i>
+                </span>
+                <input type="text" class="form-control" placeholder="Rechercher une recette..." 
+                       @bind="searchTerm" @bind:onchange="OnSearchChanged" />
+                <button class="btn btn-outline-secondary" type="button" @onclick="ClearSearch">
+                    <i class="bi bi-x-circle"></i>
+                </button>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <select class="form-select" @bind="selectedCategorie" @bind:onchange="OnFilterChanged">
+                <option value="">Toutes les catégories</option>
+                @if (categories != null)
+                {
+                    @foreach (var categorie in categories)
+                    {
+                        <option value="@categorie.Id">@categorie.Libelle</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select class="form-select" @bind="selectedTypeCuisine" @bind:onchange="OnFilterChanged">
+                <option value="">Tous les types de cuisine</option>
+                @if (typesCuisine != null)
+                {
+                    @foreach (var type in typesCuisine)
+                    {
+                        <option value="@type.Id">@type.Libelle</option>
+                    }
+                }
+            </select>
+        </div>
+    </div>
+
+    @if (loading)
+    {
+        <div class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Chargement...</span>
+            </div>
+        </div>
+    }
+    else if (recettes == null || !recettes.Any())
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>
+            @if (!string.IsNullOrEmpty(searchTerm) || selectedCategorie.HasValue || selectedTypeCuisine.HasValue)
+            {
+                <text>Aucune recette trouvée pour vos critères de recherche.</text>
+                <button class="btn btn-link p-0 ms-2" @onclick="ClearFilters">
+                    Effacer les filtres
+                </button>
+            }
+            else
+            {
+                <text>Aucune recette trouvée. Cliquez sur "Ajouter une recette" pour commencer.</text>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="mb-3">
+            <small class="text-muted">
+                @recettes.Count() recette@(recettes.Count() > 1 ? "s" : "") trouvée@(recettes.Count() > 1 ? "s" : "")
+            </small>
+        </div>
+
+        <!-- Vue Cartes -->
+        <div class="row">
+            @foreach (var recette in recettes)
+            {
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="card-title mb-0">@recette.Nom</h5>
+                                <span class="badge bg-primary">@recette.NbPersonnes pers.</span>
+                            </div>
+                            
+                            @if (!string.IsNullOrEmpty(recette.Description))
+                            {
+                                <p class="card-text text-muted small">@recette.Description</p>
+                            }
+                            
+                            <div class="mb-2">
+                                <span class="badge bg-info me-1">@recette.Categorie?.Libelle</span>
+                                <span class="badge bg-secondary">@recette.TypeCuisine?.Libelle</span>
+                            </div>
+                            
+                            @if (recette.DureePreparation.HasValue)
+                            {
+                                <div class="text-muted small mb-2">
+                                    <i class="bi bi-clock me-1"></i>@recette.DureePreparation.Value min
+                                </div>
+                            }
+                            
+                            <div class="text-muted small mb-3">
+                                <i class="bi bi-basket me-1"></i>@recette.RecetteIngredients.Count ingrédient(s)
+                            </div>
+                            
+                            <div class="d-flex justify-content-between">
+                                <div class="btn-group" role="group">
+                                    <NavLink href="@($"/gestion-recettes/modifier/{recette.Id}")" 
+                                             class="btn btn-sm btn-outline-primary"
+                                             title="Modifier">
+                                        <i class="bi bi-pencil"></i>
+                                    </NavLink>
+                                    <NavLink href="@($"/detail-recette/{recette.Id}")" 
+                                             class="btn btn-sm btn-outline-info"
+                                             title="Voir détail">
+                                        <i class="bi bi-eye"></i>
+                                    </NavLink>
+                                    <button class="btn btn-sm btn-outline-danger" 
+                                            @onclick="() => ShowDeleteModal(recette)"
+                                            title="Supprimer">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<!-- Modal de suppression -->
+<ConfirmationModal Show="showDeleteModal"
+                   Title="Supprimer une recette"
+                   Message="@(deletingRecette != null ? $"Êtes-vous sûr de vouloir supprimer la recette {deletingRecette.Nom} ?" : "Êtes-vous sûr de vouloir supprimer cette recette ?")"
+                   WarningMessage="Cette action est irréversible. Tous les ingrédients associés seront également supprimés."
+                   ConfirmText="Supprimer"
+                   CancelText="Annuler"
+                   ConfirmButtonClass="btn-danger"
+                   OnConfirm="ConfirmDelete"
+                   OnCancel="HideDeleteModal" />
+
+@code {
+    private List<Recette>? recettes;
+    private List<Categorie>? categories;
+    private List<TypeCuisine>? typesCuisine;
+    private Recette? deletingRecette;
+    private bool loading = true;
+    private bool showDeleteModal = false;
+    private string searchTerm = "";
+    private int? selectedCategorie;
+    private int? selectedTypeCuisine;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        loading = true;
+        try
+        {
+            var tasks = new List<Task>
+            {
+                RecetteService.GetRecettesAsync(),
+                RecetteService.GetCategoriesAsync(),
+                RecetteService.GetTypesCuisineAsync()
+            };
+            
+            await Task.WhenAll(tasks);
+            recettes = (await RecetteService.GetRecettesAsync()).ToList();
+            categories = (await RecetteService.GetCategoriesAsync()).ToList();
+            typesCuisine = (await RecetteService.GetTypesCuisineAsync()).ToList();
+            
+            ApplyFilters();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading data: {ex.Message}");
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private async Task OnSearchChanged()
+    {
+        ApplyFilters();
+    }
+
+    private async Task OnFilterChanged()
+    {
+        ApplyFilters();
+    }
+
+    private void ApplyFilters()
+    {
+        if (recettes == null) return;
+
+        var filtered = recettes.AsEnumerable();
+
+        if (!string.IsNullOrEmpty(searchTerm))
+        {
+            filtered = filtered.Where(r => 
+                r.Nom.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                (r.Description?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false));
+        }
+
+        if (selectedCategorie.HasValue)
+        {
+            filtered = filtered.Where(r => r.CategorieId == selectedCategorie.Value);
+        }
+
+        if (selectedTypeCuisine.HasValue)
+        {
+            filtered = filtered.Where(r => r.TypeCuisineId == selectedTypeCuisine.Value);
+        }
+
+        recettes = filtered.ToList();
+        StateHasChanged();
+    }
+
+    private void ClearSearch()
+    {
+        searchTerm = "";
+        ApplyFilters();
+    }
+
+    private void ClearFilters()
+    {
+        searchTerm = "";
+        selectedCategorie = null;
+        selectedTypeCuisine = null;
+        _ = Task.Run(LoadData);
+    }
+
+    private void ShowDeleteModal(Recette recette)
+    {
+        deletingRecette = recette;
+        showDeleteModal = true;
+    }
+
+    private void HideDeleteModal()
+    {
+        showDeleteModal = false;
+        deletingRecette = null;
+    }
+
+    private async Task ConfirmDelete()
+    {
+        if (deletingRecette == null) return;
+
+        try
+        {
+            await RecetteService.DeleteRecetteAsync(deletingRecette.Id);
+            HideDeleteModal();
+            await LoadData();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting recipe: {ex.Message}");
+        }
+    }
+}

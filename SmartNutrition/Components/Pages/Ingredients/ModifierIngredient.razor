@@ -1,0 +1,343 @@
+@page "/gestion-ingredients/modifier/{id:int}"
+@using SmartNutrition.Models
+@using SmartNutrition.Services
+@using SmartNutrition.Components.UI
+@inject IIngredientService IngredientService
+@inject IUniteService UniteService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Modifier un Ingrédient</PageTitle>
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <NavLink href="/gestion-ingredients">Gestion des Ingrédients</NavLink>
+                    </li>
+                    <li class="breadcrumb-item active">Modifier un ingrédient</li>
+                </ol>
+            </nav>
+            <h2>Modifier l'ingrédient</h2>
+            <p class="text-muted">Modifiez les informations de l'ingrédient</p>
+        </div>
+    </div>
+
+    @if (loading)
+    {
+        <div class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Chargement...</span>
+            </div>
+        </div>
+    }
+    else if (ingredient == null)
+    {
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            Ingrédient non trouvé.
+            <NavLink href="/gestion-ingredients" class="alert-link ms-2">Retour à la gestion des ingrédients</NavLink>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <EditForm Model="@ingredient" OnValidSubmit="HandleValidSubmit">
+                            <DataAnnotationsValidator />
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Nom de l'ingrédient *</label>
+                                        <InputText class="form-control" @bind-Value="ingredient.Nom" 
+                                                   placeholder="ex: Farine, Sucre, Œufs" />
+                                        <ValidationMessage For="@(() => ingredient.Nom)" class="text-danger" />
+                                        <small class="form-text text-muted">Nom unique de l'ingrédient</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Unité de mesure *</label>
+                                        <InputSelect class="form-select" @bind-Value="ingredient.UniteId">
+                                            @if (unites != null)
+                                            {
+                                                @foreach (var unite in unites)
+                                                {
+                                                    <option value="@unite.Id">@unite.Libelle (@unite.Symbole)</option>
+                                                }
+                                            }
+                                        </InputSelect>
+                                        <ValidationMessage For="@(() => ingredient.UniteId)" class="text-danger" />
+                                        <small class="form-text text-muted">Unité utilisée pour la mesure</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Calories par unité *</label>
+                                <InputNumber class="form-control" @bind-Value="ingredient.CaloriesParUnite" 
+                                             placeholder="ex: 50, 100, 200" />
+                                <ValidationMessage For="@(() => ingredient.CaloriesParUnite)" class="text-danger" />
+                                <small class="form-text text-muted">Valeur calorique par @(ingredient.Unite?.Symbole ?? "unité")</small>
+                            </div>
+
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <h6 class="card-title mb-0">
+                                        <i class="bi bi-pie-chart me-2"></i>Macronutriments (optionnel)
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label class="form-label">Protéines (g)</label>
+                                                <InputNumber class="form-control" @bind-Value="ingredient.Proteines" TValue="double?"
+                                                             placeholder="0.0" step="0.1" min="0" max="100" />
+                                                <ValidationMessage For="@(() => ingredient.Proteines)" class="text-danger" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label class="form-label">Glucides (g)</label>
+                                                <InputNumber class="form-control" @bind-Value="ingredient.Glucides" TValue="double?"
+                                                             placeholder="0.0" step="0.1" min="0" max="100" />
+                                                <ValidationMessage For="@(() => ingredient.Glucides)" class="text-danger" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label class="form-label">Lipides (g)</label>
+                                                <InputNumber class="form-control" @bind-Value="ingredient.Lipides" TValue="double?"
+                                                             placeholder="0.0" step="0.1" min="0" max="100" />
+                                                <ValidationMessage For="@(() => ingredient.Lipides)" class="text-danger" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle me-2"></i>
+                                <strong>ID de l'ingrédient:</strong> @ingredient.Id
+                            </div>
+
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                                    @if (isSubmitting)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                    }
+                                    Enregistrer les modifications
+                                </button>
+                                <button type="button" class="btn btn-secondary" @onclick="Cancel">
+                                    Annuler
+                                </button>
+                            </div>
+                        </EditForm>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Recettes utilisant cet ingrédient</h5>
+                    </div>
+                    <div class="card-body">
+                        @if (ingredient.RecetteIngredients == null || !ingredient.RecetteIngredients.Any())
+                        {
+                            <p class="text-muted">Aucune recette n'utilise cet ingrédient</p>
+                        }
+                        else
+                        {
+                            <div class="list-group">
+                                @foreach (var recetteIngredient in ingredient.RecetteIngredients.Take(10))
+                                {
+                                    <div class="list-group-item">
+                                        <strong>@recetteIngredient.Recette?.Nom</strong>
+                                        <br>
+                                        <small class="text-muted">
+                                            Quantité: @recetteIngredient.Quantite @ingredient.Unite?.Symbole
+                                            @if (recetteIngredient.Recette?.DureePreparation != null)
+                                            {
+                                                <span class="ms-2">
+                                                    <i class="bi bi-clock me-1"></i>@recetteIngredient.Recette.DureePreparation min
+                                                </span>
+                                            }
+                                        </small>
+                                    </div>
+                                }
+                            </div>
+                            @if (ingredient.RecetteIngredients.Count > 10)
+                            {
+                                <small class="text-muted d-block mt-2">
+                                    Et @ingredient.RecetteIngredients.Count - 10 autres recettes...
+                                </small>
+                            }
+                        }
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Actions</h5>
+                    </div>
+                    <div class="card-body">
+                        <button class="btn btn-outline-danger w-100" 
+                                @onclick="ShowDeleteModal"
+                                disabled="@(ingredient.RecetteIngredients.Count > 0)">
+                            <i class="bi bi-trash me-2"></i>
+                            Supprimer cet ingrédient
+                        </button>
+                        @if (ingredient.RecetteIngredients.Count > 0)
+                        {
+                            <small class="text-muted d-block mt-2">
+                                Impossible de supprimer cet ingrédient car il est utilisé par des recettes
+                            </small>
+                        }
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-calculator me-2"></i>Calculateur rapide
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Quantité</label>
+                            <InputNumber class="form-control" @bind-Value="calculQuantite" TValue="double" step="0.1" min="0" />
+                        </div>
+                        @if (calculQuantite > 0)
+                        {
+                            <div class="alert alert-light">
+                                <strong>Total calories:</strong> @(ingredient.CaloriesParUnite * calculQuantite).ToString("F1") cal
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<ConfirmationModal Show="showDeleteModal"
+                   Title="Supprimer un ingrédient"
+                   Message="@(ingredient != null ? $"Êtes-vous sûr de vouloir supprimer l'ingrédient {ingredient.Nom} ?" : "Êtes-vous sûr de vouloir supprimer cet ingrédient ?")"
+                   WarningMessage="@(ingredient?.RecetteIngredients.Count > 0 ? $"Attention : {ingredient.RecetteIngredients.Count} recette(s) utilisent cet ingrédient." : null)"
+                   ConfirmText="Supprimer"
+                   CancelText="Annuler"
+                   ConfirmButtonClass="btn-danger"
+                   ConfirmDisabled="@(ingredient?.RecetteIngredients.Count > 0)"
+                   OnConfirm="ConfirmDelete"
+                   OnCancel="HideDeleteModal" />
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Ingredient? ingredient;
+    private List<Unite>? unites;
+    private bool loading = true;
+    private bool isSubmitting = false;
+    private bool showDeleteModal = false;
+    private double calculQuantite = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.WhenAll(LoadIngredient(), LoadUnites());
+    }
+
+    private async Task LoadIngredient()
+    {
+        loading = true;
+        try
+        {
+            ingredient = await IngredientService.GetIngredientByIdAsync(Id);
+            if (ingredient == null)
+            {
+                Console.WriteLine($"Ingredient with ID {Id} not found");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading ingredient: {ex.Message}");
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private async Task LoadUnites()
+    {
+        try
+        {
+            unites = (await UniteService.GetAllUnitesAsync()).ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading unites: {ex.Message}");
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (ingredient == null) return;
+
+        isSubmitting = true;
+        try
+        {
+            await IngredientService.UpdateIngredientAsync(ingredient.Id, ingredient);
+            
+            // Rediriger vers la page de gestion avec un message de succès
+            NavigationManager.NavigateTo("/gestion-ingredients");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error updating ingredient: {ex.Message}");
+            // TODO: Afficher un message d'erreur à l'utilisateur
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/gestion-ingredients");
+    }
+
+    private void ShowDeleteModal()
+    {
+        showDeleteModal = true;
+    }
+
+    private void HideDeleteModal()
+    {
+        showDeleteModal = false;
+    }
+
+    private async Task ConfirmDelete()
+    {
+        if (ingredient == null) return;
+
+        try
+        {
+            await IngredientService.DeleteIngredientAsync(ingredient.Id);
+            NavigationManager.NavigateTo("/gestion-ingredients");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting ingredient: {ex.Message}");
+            HideDeleteModal();
+        }
+    }
+}

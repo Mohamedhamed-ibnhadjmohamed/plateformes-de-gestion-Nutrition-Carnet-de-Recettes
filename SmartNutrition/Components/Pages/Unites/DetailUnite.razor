@@ -1,0 +1,192 @@
+@page "/detail-unite/{Id:int}"
+@using SmartNutrition.Models
+@using SmartNutrition.Services
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+@inject IUniteService UniteService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Détail de l'Unité</PageTitle>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            @if (loading)
+            {
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Chargement...</span>
+                    </div>
+                </div>
+            }
+            else if (unite == null)
+            {
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle"></i> Unité non trouvée.
+                </div>
+            }
+            else
+            {
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">
+                            <i class="bi bi-rulers"></i>
+                            @unite.Libelle
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Informations générales</h6>
+                                <table class="table table-sm">
+                                    <tr>
+                                        <th>ID:</th>
+                                        <td>@unite.Id</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Libellé:</th>
+                                        <td><strong>@unite.Libelle</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Symbole:</th>
+                                        <td>
+                                            <code class="badge bg-secondary">@unite.Symbole</code>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Nombre d'ingrédients:</th>
+                                        <td>
+                                            <span class="badge bg-info">@(unite.Ingredients?.Count ?? 0)</span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Utilisation</h6>
+                                <div class="alert alert-info">
+                                    <div class="text-center">
+                                        <h3 class="mb-0">
+                                            <code>@unite.Symbole</code>
+                                        </h3>
+                                        <small class="text-muted">Symbole utilisé dans les recettes</small>
+                                    </div>
+                                </div>
+                                <div class="alert alert-light">
+                                    <div class="text-center">
+                                        <h5 class="mb-0">@(unite.Ingredients?.Count ?? 0)</h5>
+                                        <small class="text-muted">Ingrédients utilisent cette unité</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (unite.Ingredients?.Any() == true)
+                        {
+                            <div class="mt-4">
+                                <h6>Ingrédients utilisant cette unité</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Nom</th>
+                                                <th>Calories par @unite.Symbole</th>
+                                                <th>Protéines</th>
+                                                <th>Glucides</th>
+                                                <th>Lipides</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var ingredient in unite.Ingredients.Take(10))
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        <strong>@ingredient.Nom</strong>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-warning text-dark">@ingredient.CaloriesParUnite cal</span>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-info">@(ingredient.Proteines?.ToString("F1") ?? "N/A") g</span>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-success">@(ingredient.Glucides?.ToString("F1") ?? "N/A") g</span>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-danger">@(ingredient.Lipides?.ToString("F1") ?? "N/A") g</span>
+                                                    </td>
+                                                    <td>
+                                                        <NavLink href="@($"/modifier-ingredient/{ingredient.Id}")" 
+                                                                 class="btn btn-sm btn-outline-primary">
+                                                            <i class="bi bi-pencil"></i>
+                                                        </NavLink>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                @if ((unite.Ingredients?.Count ?? 0) > 10)
+                                {
+                                    <div class="text-center mt-3">
+                                        <small class="text-muted">
+                                            Affichage des 10 premiers ingrédients sur @(unite.Ingredients?.Count ?? 0) au total
+                                        </small>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-warning mt-4">
+                                <i class="bi bi-info-circle"></i> Aucun ingrédient n'utilise actuellement cette unité.
+                            </div>
+                        }
+                    </div>
+                    <div class="card-footer">
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-secondary" @onclick="@(() => NavigationManager.NavigateTo("/gestion-unites"))">
+                                <i class="bi bi-arrow-left"></i> Retour à la liste
+                            </button>
+                            <NavLink href="@($"/modifier-unite/{unite.Id}")" class="btn btn-primary">
+                                <i class="bi bi-pencil"></i> Modifier l'unité
+                            </NavLink>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Unite? unite;
+    private bool loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUnite();
+    }
+
+    private async Task LoadUnite()
+    {
+        loading = true;
+        try
+        {
+            var unites = await UniteService.GetAllUnitesAsync();
+            unite = unites.FirstOrDefault(u => u.Id == Id);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading unite: {ex.Message}");
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+}

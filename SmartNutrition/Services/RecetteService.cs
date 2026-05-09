@@ -107,5 +107,56 @@ namespace SmartNutrition.Services
                 await _dbContext.SaveChangesAsync();
             }
         }
+
+        // Méthodes pour RecetteIngredient
+        public async Task<List<RecetteIngredient>> GetRecetteIngredientsAsync()
+        {
+            return await _dbContext.RecetteIngredients
+                .Include(ri => ri.Recette)
+                .Include(ri => ri.Ingredient)
+                .Include(ri => ri.Unite)
+                .ToListAsync();
+        }
+
+        public async Task<RecetteIngredient?> GetRecetteIngredientByIdAsync(int id)
+        {
+            return await _dbContext.RecetteIngredients
+                .Include(ri => ri.Recette)
+                .Include(ri => ri.Ingredient)
+                .Include(ri => ri.Unite)
+                .FirstOrDefaultAsync(ri => ri.Id == id);
+        }
+
+        public async Task<List<RecetteIngredient>> GetRecetteIngredientsByRecetteIdAsync(int recetteId)
+        {
+            return await _dbContext.RecetteIngredients
+                .Include(ri => ri.Recette)
+                .Include(ri => ri.Ingredient)
+                .Include(ri => ri.Unite)
+                .Where(ri => ri.RecetteId == recetteId)
+                .ToListAsync();
+        }
+
+        public async Task AddRecetteIngredientAsync(RecetteIngredient recetteIngredient)
+        {
+            _dbContext.RecetteIngredients.Add(recetteIngredient);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task UpdateRecetteIngredientAsync(RecetteIngredient recetteIngredient)
+        {
+            _dbContext.RecetteIngredients.Update(recetteIngredient);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task DeleteRecetteIngredientAsync(int id)
+        {
+            var recetteIngredient = await _dbContext.RecetteIngredients.FindAsync(id);
+            if (recetteIngredient != null)
+            {
+                _dbContext.RecetteIngredients.Remove(recetteIngredient);
+                await _dbContext.SaveChangesAsync();
+            }
+        }
     }
 }

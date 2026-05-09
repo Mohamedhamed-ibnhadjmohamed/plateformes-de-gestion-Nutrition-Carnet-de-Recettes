@@ -22,7 +22,7 @@ build_property.RootNamespace = SmartNutrition
 build_property.ProjectDir = D:\Projets\plateformes-de-gestion-Nutrition-Carnet-de-Recettes\SmartNutrition\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
-build_property.RazorLangVersion = 9.0
+build_property.RazorLangVersion = 10.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
 build_property.MSBuildProjectDirectory = D:\Projets\plateformes-de-gestion-Nutrition-Carnet-de-Recettes\SmartNutrition
@@ -34,28 +34,132 @@ build_property.EnableCodeStyleSeverity =
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xBcHAucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/Projets/plateformes-de-gestion-Nutrition-Carnet-de-Recettes/SmartNutrition/Components/Pages/Categories/AjouterCategorie.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xDYXRlZ29yaWVzXEFqb3V0ZXJDYXRlZ29yaWUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Projets/plateformes-de-gestion-Nutrition-Carnet-de-Recettes/SmartNutrition/Components/Pages/Categories/DetailCategorie.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xDYXRlZ29yaWVzXERldGFpbENhdGVnb3JpZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Projets/plateformes-de-gestion-Nutrition-Carnet-de-Recettes/SmartNutrition/Components/Pages/Categories/GestionCategories.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xDYXRlZ29yaWVzXEdlc3Rpb25DYXRlZ29yaWVzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Projets/plateformes-de-gestion-Nutrition-Carnet-de-Recettes/SmartNutrition/Components/Pages/Categories/ModifierCategorie.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xDYXRlZ29yaWVzXE1vZGlmaWVyQ2F0ZWdvcmllLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/Projets/plateformes-de-gestion-Nutrition-Carnet-de-Recettes/SmartNutrition/Components/Pages/Error.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xFcnJvci5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Projets/plateformes-de-gestion-Nutrition-Carnet-de-Recettes/SmartNutrition/Components/Pages/Ingredients/AjouterIngredient.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xJbmdyZWRpZW50c1xBam91dGVySW5ncmVkaWVudC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Projets/plateformes-de-gestion-Nutrition-Carnet-de-Recettes/SmartNutrition/Components/Pages/Ingredients/DetailIngredient.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xJbmdyZWRpZW50c1xEZXRhaWxJbmdyZWRpZW50LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Projets/plateformes-de-gestion-Nutrition-Carnet-de-Recettes/SmartNutrition/Components/Pages/Ingredients/GestionIngredients.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xJbmdyZWRpZW50c1xHZXN0aW9uSW5ncmVkaWVudHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Projets/plateformes-de-gestion-Nutrition-Carnet-de-Recettes/SmartNutrition/Components/Pages/Ingredients/ModifierIngredient.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xJbmdyZWRpZW50c1xNb2RpZmllckluZ3JlZGllbnQucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/Projets/plateformes-de-gestion-Nutrition-Carnet-de-Recettes/SmartNutrition/Components/Pages/NotFound.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xOb3RGb3VuZC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/Projets/plateformes-de-gestion-Nutrition-Carnet-de-Recettes/SmartNutrition/Components/Pages/RecetteIngredients/AjouterRecetteIngredient.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xSZWNldHRlSW5ncmVkaWVudHNcQWpvdXRlclJlY2V0dGVJbmdyZWRpZW50LnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Projets/plateformes-de-gestion-Nutrition-Carnet-de-Recettes/SmartNutrition/Components/Pages/RecetteIngredients/DetailRecetteIngredient.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xSZWNldHRlSW5ncmVkaWVudHNcRGV0YWlsUmVjZXR0ZUluZ3JlZGllbnQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Projets/plateformes-de-gestion-Nutrition-Carnet-de-Recettes/SmartNutrition/Components/Pages/RecetteIngredients/GestionRecetteIngredients.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xSZWNldHRlSW5ncmVkaWVudHNcR2VzdGlvblJlY2V0dGVJbmdyZWRpZW50cy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Projets/plateformes-de-gestion-Nutrition-Carnet-de-Recettes/SmartNutrition/Components/Pages/RecetteIngredients/ModifierRecetteIngredient.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xSZWNldHRlSW5ncmVkaWVudHNcTW9kaWZpZXJSZWNldHRlSW5ncmVkaWVudC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Projets/plateformes-de-gestion-Nutrition-Carnet-de-Recettes/SmartNutrition/Components/Pages/Recettes/AjouterRecette.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xSZWNldHRlc1xBam91dGVyUmVjZXR0ZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Projets/plateformes-de-gestion-Nutrition-Carnet-de-Recettes/SmartNutrition/Components/Pages/Recettes/DetailRecette.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xSZWNldHRlc1xEZXRhaWxSZWNldHRlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Projets/plateformes-de-gestion-Nutrition-Carnet-de-Recettes/SmartNutrition/Components/Pages/Recettes/GestionRecettes.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xSZWNldHRlc1xHZXN0aW9uUmVjZXR0ZXMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Projets/plateformes-de-gestion-Nutrition-Carnet-de-Recettes/SmartNutrition/Components/Pages/Recettes/ModifierRecette.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xSZWNldHRlc1xNb2RpZmllclJlY2V0dGUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Projets/plateformes-de-gestion-Nutrition-Carnet-de-Recettes/SmartNutrition/Components/Pages/TypesCuisine/AjouterTypeCuisine.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xUeXBlc0N1aXNpbmVcQWpvdXRlclR5cGVDdWlzaW5lLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Projets/plateformes-de-gestion-Nutrition-Carnet-de-Recettes/SmartNutrition/Components/Pages/TypesCuisine/DetailTypeCuisine.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xUeXBlc0N1aXNpbmVcRGV0YWlsVHlwZUN1aXNpbmUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Projets/plateformes-de-gestion-Nutrition-Carnet-de-Recettes/SmartNutrition/Components/Pages/TypesCuisine/GestionTypesCuisine.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xUeXBlc0N1aXNpbmVcR2VzdGlvblR5cGVzQ3Vpc2luZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Projets/plateformes-de-gestion-Nutrition-Carnet-de-Recettes/SmartNutrition/Components/Pages/TypesCuisine/ModifierTypeCuisine.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xUeXBlc0N1aXNpbmVcTW9kaWZpZXJUeXBlQ3Vpc2luZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Projets/plateformes-de-gestion-Nutrition-Carnet-de-Recettes/SmartNutrition/Components/Pages/Unites/AjouterUnite.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xVbml0ZXNcQWpvdXRlclVuaXRlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Projets/plateformes-de-gestion-Nutrition-Carnet-de-Recettes/SmartNutrition/Components/Pages/Unites/DetailUnite.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xVbml0ZXNcRGV0YWlsVW5pdGUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Projets/plateformes-de-gestion-Nutrition-Carnet-de-Recettes/SmartNutrition/Components/Pages/Unites/GestionUnites.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xVbml0ZXNcR2VzdGlvblVuaXRlcy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Projets/plateformes-de-gestion-Nutrition-Carnet-de-Recettes/SmartNutrition/Components/Pages/Unites/ModifierUnite.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xVbml0ZXNcTW9kaWZpZXJVbml0ZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/Projets/plateformes-de-gestion-Nutrition-Carnet-de-Recettes/SmartNutrition/Components/Routes.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xSb3V0ZXMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Projets/plateformes-de-gestion-Nutrition-Carnet-de-Recettes/SmartNutrition/Components/UI/ConfirmationModal.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xVSVxDb25maXJtYXRpb25Nb2RhbC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Projets/plateformes-de-gestion-Nutrition-Carnet-de-Recettes/SmartNutrition/Components/UI/DetailsModal.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xVSVxEZXRhaWxzTW9kYWwucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Projets/plateformes-de-gestion-Nutrition-Carnet-de-Recettes/SmartNutrition/Components/UI/FormModal.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xVSVxGb3JtTW9kYWwucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/Projets/plateformes-de-gestion-Nutrition-Carnet-de-Recettes/SmartNutrition/Components/UI/KpiCard.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xVSVxLcGlDYXJkLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/Projets/plateformes-de-gestion-Nutrition-Carnet-de-Recettes/SmartNutrition/Components/UI/SensorCard.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xVSVxTZW5zb3JDYXJkLnJhem9y
-build_metadata.AdditionalFiles.CssScope = 
-
-[D:/Projets/plateformes-de-gestion-Nutrition-Carnet-de-Recettes/SmartNutrition/Components/UI/SensorTable.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xVSVxTZW5zb3JUYWJsZS5yYXpvcg==
+[D:/Projets/plateformes-de-gestion-Nutrition-Carnet-de-Recettes/SmartNutrition/Components/UI/UniteForm.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xVSVxVbml0ZUZvcm0ucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/Projets/plateformes-de-gestion-Nutrition-Carnet-de-Recettes/SmartNutrition/Components/_Imports.razor]
@@ -70,6 +174,6 @@ build_metadata.AdditionalFiles.CssScope = b-soe0es5g8x
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xMYXlvdXRcTmF2TWVudS5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = b-718v8zxvix
 
-[D:/Projets/plateformes-de-gestion-Nutrition-Carnet-de-Recettes/SmartNutrition/Components/Layout/ReconnectModal.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xMYXlvdXRcUmVjb25uZWN0TW9kYWwucmF6b3I=
-build_metadata.AdditionalFiles.CssScope = b-pz6m2758c9
+[D:/Projets/plateformes-de-gestion-Nutrition-Carnet-de-Recettes/SmartNutrition/Components/UI/ReconnectModal.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xVSVxSZWNvbm5lY3RNb2RhbC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-zsj8xuuqxl

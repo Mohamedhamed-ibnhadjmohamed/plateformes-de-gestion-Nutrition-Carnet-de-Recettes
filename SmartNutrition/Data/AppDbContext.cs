@@ -61,10 +61,10 @@ namespace SmartNutrition.Data
             );
 
             modelBuilder.Entity<TypeCuisine>().HasData(
-                new TypeCuisine { Id = 1, Libelle = "Tunisienne", Pays = "Tunisie" },
-                new TypeCuisine { Id = 2, Libelle = "Française", Pays = "France" },
-                new TypeCuisine { Id = 3, Libelle = "Italienne", Pays = "Italie" },
-                new TypeCuisine { Id = 4, Libelle = "Méditerranéenne", Pays = "Méditerranée" }
+                new TypeCuisine { Id = 1, Libelle = "Tunisienne", Pays = "Tunisie", DateCreation = new DateTime(2024, 1, 1) },
+                new TypeCuisine { Id = 2, Libelle = "Française", Pays = "France", DateCreation = new DateTime(2024, 1, 1) },
+                new TypeCuisine { Id = 3, Libelle = "Italienne", Pays = "Italie", DateCreation = new DateTime(2024, 1, 1) },
+                new TypeCuisine { Id = 4, Libelle = "Méditerranéenne", Pays = "Méditerranée", DateCreation = new DateTime(2024, 1, 1) }
             );
 
             modelBuilder.Entity<Unite>().HasData(
