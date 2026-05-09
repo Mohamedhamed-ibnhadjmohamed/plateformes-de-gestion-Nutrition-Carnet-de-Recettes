@@ -71,11 +71,43 @@ plateformes-de-gestion-Nutrition-Carnet-de-Recettes/
 - **Unite 1→N Ingredient**: Une unité de mesure peut être utilisée par plusieurs ingrédients
 - **Recette N→N Ingredient**: Relation many-to-many via la table de liaison RecetteIngredient
 
+**Comportements de suppression (OnDelete) :**
+- **Cascade**: Suppression en cascade sur RecetteIngredient (si recette supprimée)
+- **Restrict**: Protection des tables de référence (pas de suppression si utilisées)
+
 #### 2. Data (Accès aux données)
-- **AppDbContext**: Contexte Entity Framework Core
-  - DbSet<SensorData> Sensors
-  - DbSet<Location> Locations  
-  - DbSet<Tag> Tags
+- **AppDbContext**: Contexte Entity Framework Core avec configuration complète
+  - **Tables principales**: Ingredients, Recettes, RecetteIngredients
+  - **Tables de référence**: Categories, TypesCuisine, Unites
+  - **Relations configurées** avec comportements de suppression
+  - **Seed data**: Données initiales pour les tables de référence
+
+**Configuration SQLite :**
+```csharp
+builder.Services.AddDbContext<AppDbContext>(options => 
+    options.UseSqlite("Data Source=app.db"));
+```
+
+**Base de données :**
+- Fichier SQLite créé à la racine : `app.db`
+- 6 tables avec relations et contraintes
+- Données de seed automatiques au démarrage
+
+**Migrations EF Core :**
+```bash
+# Installer les outils EF
+dotnet tool install --global dotnet-ef
+
+# Ajouter les packages
+dotnet add package Microsoft.EntityFrameworkCore.Sqlite
+dotnet add package Microsoft.EntityFrameworkCore.Design
+
+# Créer la migration initiale
+dotnet ef migrations add InitialCreate
+
+# Appliquer en base
+dotnet ef database update
+```
 
 #### 3. Services (Logique métier)
 - **ISensorService**: Interface pour la gestion des capteurs

@@ -2522,11 +2522,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\DashboardData-4DS-2026-Lab10-StartCode\\DashboardData-4DS-2026-Lab10-StartCode\\SmartNutrition\\SmartNutrition.csproj",
+      "projectUniqueName": "D:\\Projets\\plateformes-de-gestion-Nutrition-Carnet-de-Recettes\\SmartNutrition\\SmartNutrition.csproj",
       "projectName": "SmartNutrition",
-      "projectPath": "D:\\DashboardData-4DS-2026-Lab10-StartCode\\DashboardData-4DS-2026-Lab10-StartCode\\SmartNutrition\\SmartNutrition.csproj",
+      "projectPath": "D:\\Projets\\plateformes-de-gestion-Nutrition-Carnet-de-Recettes\\SmartNutrition\\SmartNutrition.csproj",
       "packagesPath": "C:\\Users\\mhbm\\.nuget\\packages\\",
-      "outputPath": "D:\\DashboardData-4DS-2026-Lab10-StartCode\\DashboardData-4DS-2026-Lab10-StartCode\\SmartNutrition\\obj\\",
+      "outputPath": "D:\\Projets\\plateformes-de-gestion-Nutrition-Carnet-de-Recettes\\SmartNutrition\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

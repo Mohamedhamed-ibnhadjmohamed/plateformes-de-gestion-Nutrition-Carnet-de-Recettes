@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "0RIQ8cGlQYA=",
+  "dgSpecHash": "DT5KgtdRaPw=",
   "success": true,
-  "projectFilePath": "D:\\DashboardData-4DS-2026-Lab10-StartCode\\DashboardData-4DS-2026-Lab10-StartCode\\SmartNutrition\\SmartNutrition.csproj",
+  "projectFilePath": "D:\\Projets\\plateformes-de-gestion-Nutrition-Carnet-de-Recettes\\SmartNutrition\\SmartNutrition.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\mhbm\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\mhbm\\.nuget\\packages\\microsoft.aspnetcore.app.internal.assets\\10.0.7\\microsoft.aspnetcore.app.internal.assets.10.0.7.nupkg.sha512",
