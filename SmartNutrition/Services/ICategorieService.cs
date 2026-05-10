@@ -10,5 +10,6 @@ namespace SmartNutrition.Services
         Task<Categorie?> UpdateCategorieAsync(int id, Categorie categorie);
         Task<bool> DeleteCategorieAsync(int id);
         Task<bool> CategorieExistsAsync(int id);
+        Task<IEnumerable<Categorie>> SearchCategoriesAsync(string searchTerm);
     }
 }

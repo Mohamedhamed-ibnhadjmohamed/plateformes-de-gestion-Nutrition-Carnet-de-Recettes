@@ -10,5 +10,6 @@ namespace SmartNutrition.Services
         Task<Unite?> UpdateUniteAsync(int id, Unite unite);
         Task<bool> DeleteUniteAsync(int id);
         Task<bool> UniteExistsAsync(int id);
+        Task<IEnumerable<Unite>> SearchUnitesAsync(string searchTerm);
     }
 }

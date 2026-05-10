@@ -158,5 +158,15 @@ namespace SmartNutrition.Services
                 await _dbContext.SaveChangesAsync();
             }
         }
+
+        public async Task<IEnumerable<Recette>> SearchRecettesAsync(string searchTerm)
+        {
+            return await _dbContext.Recettes
+                .Include(r => r.Categorie)
+                .Include(r => r.TypeCuisine)
+                .Where(r => r.Nom.Contains(searchTerm))
+                .OrderBy(r => r.Nom)
+                .ToListAsync();
+        }
     }
 }

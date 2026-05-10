@@ -1,0 +1,429 @@
+@page "/"
+@using SmartNutrition.Models
+@using SmartNutrition.Services
+@using SmartNutrition.Extensions
+@inject ICategorieService CategorieService
+@inject IIngredientService IngredientService
+@inject IRecetteService RecetteService
+@inject ITypeCuisineService TypeCuisineService
+@inject IUniteService UniteService
+
+<PageTitle>SmartNutrition - Tableau de Bord</PageTitle>
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="display-4">
+                <i class="bi bi-heart-pulse-fill text-danger me-3"></i>
+                SmartNutrition
+            </h1>
+            <p class="lead text-muted">Gérez votre carnet de recettes intelligent</p>
+        </div>
+    </div>
+
+    <!-- Statistiques principales -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-primary text-white h-100 shadow-sm border-0 transition-all hover-lift">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0 counter-animation">@totalRecettes</h4>
+                            <p class="mb-0">Recettes</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-book fs-1 icon-bounce"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer d-flex justify-content-between bg-transparent border-0">
+                    <NavLink href="/gestion-recettes" class="text-white text-decoration-none hover-underline">
+                        <small><i class="bi bi-eye me-1"></i>Voir tout</small>
+                    </NavLink>
+                    <NavLink href="/gestion-recettes/ajouter" class="text-white text-decoration-none hover-underline">
+                        <small><i class="bi bi-plus-circle me-1"></i>Ajouter</small>
+                    </NavLink>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-success text-white h-100 shadow-sm border-0 transition-all hover-lift">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0 counter-animation">@totalIngredients</h4>
+                            <p class="mb-0">Ingrédients</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-egg-fried fs-1 icon-bounce"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer d-flex justify-content-between bg-transparent border-0">
+                    <NavLink href="/gestion-ingredients" class="text-white text-decoration-none hover-underline">
+                        <small><i class="bi bi-eye me-1"></i>Voir tout</small>
+                    </NavLink>
+                    <NavLink href="/gestion-ingredients/ajouter" class="text-white text-decoration-none hover-underline">
+                        <small><i class="bi bi-plus-circle me-1"></i>Ajouter</small>
+                    </NavLink>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-info text-white h-100 shadow-sm border-0 transition-all hover-lift">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0 counter-animation">@totalCategories</h4>
+                            <p class="mb-0">Catégories</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-tags fs-1 icon-bounce"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer d-flex justify-content-between bg-transparent border-0">
+                    <NavLink href="/gestion-categories" class="text-white text-decoration-none hover-underline">
+                        <small><i class="bi bi-eye me-1"></i>Voir tout</small>
+                    </NavLink>
+                    <NavLink href="/gestion-categories/ajouter" class="text-white text-decoration-none hover-underline">
+                        <small><i class="bi bi-plus-circle me-1"></i>Ajouter</small>
+                    </NavLink>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-warning text-white h-100 shadow-sm border-0 transition-all hover-lift">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0 counter-animation">@totalTypesCuisine</h4>
+                            <p class="mb-0">Types de cuisine</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-globe fs-1 icon-bounce"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer d-flex justify-content-between bg-transparent border-0">
+                    <NavLink href="/gestion-types-cuisine" class="text-white text-decoration-none hover-underline">
+                        <small><i class="bi bi-eye me-1"></i>Voir tout</small>
+                    </NavLink>
+                    <NavLink href="/gestion-types-cuisine/ajouter" class="text-white text-decoration-none hover-underline">
+                        <small><i class="bi bi-plus-circle me-1"></i>Ajouter</small>
+                    </NavLink>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions rapides -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-gradient-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-lightning-fill me-2 animate-pulse"></i>
+                        Actions rapides
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <NavLink href="/gestion-recettes/ajouter" class="btn btn-outline-primary w-100 action-btn">
+                                <i class="bi bi-plus-circle me-2"></i>
+                                Nouvelle recette
+                            </NavLink>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <NavLink href="/gestion-ingredients/ajouter" class="btn btn-outline-success w-100 action-btn">
+                                <i class="bi bi-plus-circle me-2"></i>
+                                Nouvel ingrédient
+                            </NavLink>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <NavLink href="/gestion-categories/ajouter" class="btn btn-outline-info w-100 action-btn">
+                                <i class="bi bi-plus-circle me-2"></i>
+                                Nouvelle catégorie
+                            </NavLink>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <NavLink href="/gestion-recette-ingredients/ajouter" class="btn btn-outline-warning w-100 action-btn">
+                                <i class="bi bi-plus-circle me-2"></i>
+                                Associer ingrédient
+                            </NavLink>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dernières recettes -->
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-gradient-success text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-clock-history me-2"></i>
+                        Dernières recettes
+                    </h5>
+                    <NavLink href="/gestion-recettes" class="btn btn-sm btn-light">
+                        Voir tout <i class="bi bi-arrow-right ms-1"></i>
+                    </NavLink>
+                </div>
+                <div class="card-body">
+                    @if (loading)
+                    {
+                        <div class="text-center py-5">
+                            <div class="spinner-border text-success"></div>
+                            <p class="mt-2 text-muted">Chargement des recettes...</p>
+                        </div>
+                    }
+                    else if (dernieresRecettes?.Any() == true)
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var recette in dernieresRecettes.Take(5))
+                            {
+                                <div class="list-group-item list-item-hover d-flex justify-content-between align-items-center">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1 fw-bold">@recette.Nom</h6>
+                                        <div class="mb-2">
+                                            <span class="badge bg-info me-1">@recette.Categorie?.Libelle</span>
+                                            <span class="badge bg-secondary me-1">@recette.TypeCuisine?.Libelle</span>
+                                            <span class="badge bg-primary">@recette.NbPersonnes pers.</span>
+                                            @if (recette.DureePreparation.HasValue)
+                                            {
+                                                <span class="badge bg-warning text-dark">@recette.DureePreparation.Value min</span>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <NavLink href="@($"/detail-recette/{recette.Id}")" class="btn btn-sm btn-outline-success action-btn-small">
+                                            <i class="bi bi-eye"></i>
+                                        </NavLink>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        
+                        <div class="text-center mt-3">
+                            <NavLink href="/gestion-recettes" class="btn btn-outline-primary">
+                                <i class="bi bi-grid me-2"></i>Voir toutes les recettes
+                            </NavLink>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="bi bi-inbox fs-1 text-muted mb-3"></i>
+                            <p class="text-muted">Aucune recette trouvée</p>
+                            <NavLink href="/gestion-recettes/ajouter" class="btn btn-primary mt-3">
+                                <i class="bi bi-plus-circle me-2"></i>
+                                Ajouter votre première recette
+                            </NavLink>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistiques détaillées -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-graph-up me-2"></i>
+                        Statistiques détaillées
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (loading)
+                    {
+                        <div class="text-center py-3">
+                            <div class="spinner-border spinner-border-sm"></div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span>Unités</span>
+                                <span class="badge bg-secondary">@totalUnites</span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span>Associations</span>
+                                <span class="badge bg-secondary">@totalRecetteIngredients</span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span>Moyenne ingrédients/recette</span>
+                                <span class="badge bg-secondary">
+                                    @(totalRecettes > 0 ? (totalRecetteIngredients / totalRecettes).ToString("F1") : "0")
+                                </span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span>Recettes cette semaine</span>
+                                <span class="badge bg-success">@recettesCetteSemaine</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation rapide -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-grid-3x3-gap me-2"></i>
+                        Navigation rapide
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-2 col-sm-4 col-6 mb-3">
+                            <NavLink href="/gestion-recettes" class="text-decoration-none">
+                                <div class="card text-center h-100 border-primary">
+                                    <div class="card-body">
+                                        <i class="bi bi-book fs-2 text-primary mb-2"></i>
+                                        <h6>Recettes</h6>
+                                    </div>
+                                </div>
+                            </NavLink>
+                        </div>
+                        <div class="col-md-2 col-sm-4 col-6 mb-3">
+                            <NavLink href="/gestion-ingredients" class="text-decoration-none">
+                                <div class="card text-center h-100 border-success">
+                                    <div class="card-body">
+                                        <i class="bi bi-egg-fried fs-2 text-success mb-2"></i>
+                                        <h6>Ingrédients</h6>
+                                    </div>
+                                </div>
+                            </NavLink>
+                        </div>
+                        <div class="col-md-2 col-sm-4 col-6 mb-3">
+                            <NavLink href="/gestion-categories" class="text-decoration-none">
+                                <div class="card text-center h-100 border-info">
+                                    <div class="card-body">
+                                        <i class="bi bi-tags fs-2 text-info mb-2"></i>
+                                        <h6>Catégories</h6>
+                                    </div>
+                                </div>
+                            </NavLink>
+                        </div>
+                        <div class="col-md-2 col-sm-4 col-6 mb-3">
+                            <NavLink href="/gestion-types-cuisine" class="text-decoration-none">
+                                <div class="card text-center h-100 border-warning">
+                                    <div class="card-body">
+                                        <i class="bi bi-globe fs-2 text-warning mb-2"></i>
+                                        <h6>Types cuisine</h6>
+                                    </div>
+                                </div>
+                            </NavLink>
+                        </div>
+                        <div class="col-md-2 col-sm-4 col-6 mb-3">
+                            <NavLink href="/gestion-unites" class="text-decoration-none">
+                                <div class="card text-center h-100 border-secondary">
+                                    <div class="card-body">
+                                        <i class="bi bi-rulers fs-2 text-secondary mb-2"></i>
+                                        <h6>Unités</h6>
+                                    </div>
+                                </div>
+                            </NavLink>
+                        </div>
+                        <div class="col-md-2 col-sm-4 col-6 mb-3">
+                            <NavLink href="/gestion-recette-ingredients" class="text-decoration-none">
+                                <div class="card text-center h-100 border-danger">
+                                    <div class="card-body">
+                                        <i class="bi bi-link-45deg fs-2 text-danger mb-2"></i>
+                                        <h6>Associations</h6>
+                                    </div>
+                                </div>
+                            </NavLink>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private bool loading = true;
+    private int totalRecettes = 0;
+    private int totalIngredients = 0;
+    private int totalCategories = 0;
+    private int totalTypesCuisine = 0;
+    private int totalUnites = 0;
+    private int totalRecetteIngredients = 0;
+    private int recettesCetteSemaine = 0;
+    private List<Recette>? dernieresRecettes;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadStatistics();
+    }
+
+    private async Task LoadStatistics()
+    {
+        loading = true;
+        try
+        {
+            // Charger toutes les données en parallèle
+            var tasks = new List<Task>
+            {
+                RecetteService.GetRecettesAsync(),
+                IngredientService.GetAllIngredientsAsync(),
+                CategorieService.GetAllCategoriesAsync(),
+                TypeCuisineService.GetAllTypesCuisineAsync(),
+                UniteService.GetAllUnitesAsync(),
+                RecetteService.GetRecetteIngredientsAsync()
+            };
+
+            await Task.WhenAll(tasks);
+
+            var recettes = (await RecetteService.GetRecettesAsync()).ToList();
+            var ingredients = (await IngredientService.GetAllIngredientsAsync()).ToList();
+            var categories = (await CategorieService.GetAllCategoriesAsync()).ToList();
+            var typesCuisine = (await TypeCuisineService.GetAllTypesCuisineAsync()).ToList();
+            var unites = (await UniteService.GetAllUnitesAsync()).ToList();
+            var recetteIngredients = (await RecetteService.GetRecetteIngredientsAsync()).ToList();
+
+            totalRecettes = recettes.Count;
+            totalIngredients = ingredients.Count;
+            totalCategories = categories.Count;
+            totalTypesCuisine = typesCuisine.Count;
+            totalUnites = unites.Count;
+            totalRecetteIngredients = recetteIngredients.Count;
+
+            // Calculer les recettes de cette semaine
+            var semaineActuelle = DateTime.Now.StartOfWeek(DayOfWeek.Monday);
+            // Simuler les recettes récentes (utiliser les 3 premières comme exemple)
+            recettesCetteSemaine = Math.Min(3, totalRecettes);
+
+            // Obtenir les 5 dernières recettes
+            dernieresRecettes = recettes.Take(5).ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading statistics: {ex.Message}");
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+}

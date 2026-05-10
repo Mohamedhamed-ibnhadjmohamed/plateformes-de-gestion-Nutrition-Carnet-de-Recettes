@@ -8,45 +8,62 @@
 <PageTitle>Gestion des Unités</PageTitle>
 
 <div class="container-fluid">
+    <!-- Header -->
     <div class="row mb-4">
         <div class="col">
-            <h2>Gestion des Unités</h2>
-            <p class="text-muted">Gérez les unités de mesure utilisées dans vos recettes</p>
+            <h2><i class="bi bi-rulers me-2"></i>Gestion des Unités</h2>
+            <p class="text-muted">Gérez les unités de mesure</p>
         </div>
         <div class="col-auto">
             <NavLink href="/gestion-unites/ajouter" class="btn btn-primary">
-                <i class="bi bi-plus-circle me-2"></i>Ajouter une unité
+                <i class="bi bi-plus-circle me-2"></i>Ajouter
             </NavLink>
         </div>
     </div>
 
-    @if (loading)
-    {
-        <div class="text-center">
-            <div class="spinner-border" role="status">
-                <span class="visually-hidden">Chargement...</span>
+    <!-- Recherche -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-8">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" class="form-control" placeholder="Rechercher..." 
+                               @bind="searchTerm" @onkeyup="OnSearch" />
+                        <button class="btn btn-outline-secondary" type="button" @onclick="ClearSearch">
+                            <i class="bi bi-x-circle"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-outline-secondary w-100" @onclick="RefreshData">
+                        <i class="bi bi-arrow-clockwise me-2"></i>Actualiser
+                    </button>
+                </div>
             </div>
         </div>
-    }
-    else if (unites == null || !unites.Any())
-    {
-        <div class="alert alert-info">
-            <i class="bi bi-info-circle me-2"></i>
-            Aucune unité trouvée. Cliquez sur "Ajouter une unité" pour commencer.
-        </div>
-    }
-    else
-    {
-        <div class="card">
-            <div class="card-body">
+    </div>
+
+    <!-- Liste des unités -->
+    <div class="card">
+        <div class="card-body">
+            @if (loading)
+            {
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary"></div>
+                    <p class="mt-2">Chargement...</p>
+                </div>
+            }
+            else if (unites?.Any() == true)
+            {
                 <div class="table-responsive">
                     <table class="table table-hover">
-                        <thead class="table-light">
+                        <thead>
                             <tr>
-                                <th>ID</th>
-                                <th>Libellé</th>
+                                <th>Nom</th>
                                 <th>Symbole</th>
-                                <th>Ingrédients associés</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -54,30 +71,22 @@
                             @foreach (var unite in unites)
                             {
                                 <tr>
-                                    <td>@unite.Id</td>
-                                    <td>@unite.Libelle</td>
-                                    <td><code>@unite.Symbole</code></td>
+                                    <td class="fw-bold">@unite.Libelle</td>
                                     <td>
-                                        <span class="badge bg-info">
-                                            @(unite.Ingredients?.Count ?? 0) ingrédient(s)
-                                        </span>
+                                        <span class="badge bg-info fs-6">@unite.Symbole</span>
                                     </td>
                                     <td>
-                                        <div class="btn-group" role="group">
-                                            <NavLink href="@($"/gestion-unites/modifier/{unite.Id}")" 
-                                                     class="btn btn-sm btn-outline-primary"
-                                                     title="Modifier">
-                                                <i class="bi bi-pencil"></i>
-                                            </NavLink>
+                                        <div class="btn-group btn-group-sm">
                                             <NavLink href="@($"/detail-unite/{unite.Id}")" 
-                                                     class="btn btn-sm btn-outline-info"
-                                                     title="Voir détail">
+                                                   class="btn btn-outline-info">
                                                 <i class="bi bi-eye"></i>
                                             </NavLink>
-                                            <button class="btn btn-sm btn-outline-danger" 
-                                                    @onclick="() => ShowDeleteModal(unite)"
-                                                    title="Supprimer"
-                                                    disabled="@(unite.Ingredients?.Count > 0)">
+                                            <NavLink href="@($"/modifier-unite/{unite.Id}")" 
+                                                   class="btn btn-outline-warning">
+                                                <i class="bi bi-pencil"></i>
+                                            </NavLink>
+                                            <button class="btn btn-outline-danger" 
+                                                   @onclick="() => ShowDeleteModal(unite)">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </div>
@@ -87,28 +96,35 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-inbox fs-1 text-muted mb-3"></i>
+                    <p class="text-muted">Aucune unité trouvée</p>
+                    <NavLink href="/gestion-unites/ajouter" class="btn btn-primary">
+                        <i class="bi bi-plus-circle me-2"></i>Ajouter la première unité
+                    </NavLink>
+                </div>
+            }
         </div>
-    }
+    </div>
 </div>
 
-
-<ConfirmationModal Show="showDeleteModal"
-                   Title="Supprimer une unité"
-                   Message="@(deletingUnite != null ? $"Êtes-vous sûr de vouloir supprimer l'unité {deletingUnite.Libelle} ?" : "Êtes-vous sûr de vouloir supprimer cette unité ?")"
-                   WarningMessage="@(deletingUnite?.Ingredients?.Count > 0 ? $"Attention : {deletingUnite.Ingredients.Count} ingrédient(s) utilisent cette unité. Vous devez d'abord modifier ou supprimer ces ingrédients." : null)"
-                   ConfirmText="Supprimer"
-                   CancelText="Annuler"
-                   ConfirmButtonClass="btn-danger"
-                   ConfirmDisabled="@(deletingUnite?.Ingredients?.Count > 0)"
-                   OnConfirm="ConfirmDelete"
-                   OnCancel="HideDeleteModal" />
+<!-- Modal de suppression -->
+<ConfirmationModal 
+    Show="@showDeleteModal" 
+    Title="Supprimer une unité"
+    Message="Êtes-vous sûr de vouloir supprimer cette unité ?"
+    OnConfirm="ConfirmDelete"
+    OnCancel="HideDeleteModal" />
 
 @code {
     private List<Unite>? unites;
     private Unite? deletingUnite;
     private bool loading = true;
     private bool showDeleteModal = false;
+    private string searchTerm = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -120,13 +136,11 @@
         loading = true;
         try
         {
-            var unitesList = await UniteService.GetAllUnitesAsync();
-            unites = unitesList.ToList();
+            unites = (await UniteService.GetAllUnitesAsync()).ToList();
         }
         catch (Exception ex)
         {
-            // Handle error
-            Console.WriteLine($"Error loading unites: {ex.Message}");
+            Console.WriteLine($"Error: {ex.Message}");
         }
         finally
         {
@@ -134,6 +148,29 @@
         }
     }
 
+    private async Task OnSearch()
+    {
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            await LoadUnites();
+        }
+        else
+        {
+            unites = (await UniteService.SearchUnitesAsync(searchTerm)).ToList();
+        }
+    }
+
+    private void ClearSearch()
+    {
+        searchTerm = "";
+        _ = Task.Run(LoadUnites);
+    }
+
+    private async Task RefreshData()
+    {
+        searchTerm = "";
+        await LoadUnites();
+    }
 
     private void ShowDeleteModal(Unite unite)
     {
@@ -147,7 +184,6 @@
         deletingUnite = null;
     }
 
-
     private async Task ConfirmDelete()
     {
         if (deletingUnite == null) return;
@@ -160,8 +196,7 @@
         }
         catch (Exception ex)
         {
-            // Handle error
-            Console.WriteLine($"Error deleting unite: {ex.Message}");
+            Console.WriteLine($"Error: {ex.Message}");
         }
     }
 }

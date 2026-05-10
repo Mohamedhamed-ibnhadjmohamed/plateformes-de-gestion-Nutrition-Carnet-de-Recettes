@@ -10,5 +10,6 @@ namespace SmartNutrition.Services
         Task<TypeCuisine?> UpdateTypeCuisineAsync(int id, TypeCuisine typeCuisine);
         Task<bool> DeleteTypeCuisineAsync(int id);
         Task<bool> TypeCuisineExistsAsync(int id);
+        Task<IEnumerable<TypeCuisine>> SearchTypesCuisineAsync(string searchTerm);
     }
 }

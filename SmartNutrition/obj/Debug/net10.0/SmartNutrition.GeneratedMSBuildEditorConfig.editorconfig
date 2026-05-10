@@ -54,6 +54,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xFcnJvci5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/Projets/plateformes-de-gestion-Nutrition-Carnet-de-Recettes/SmartNutrition/Components/Pages/Index.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xJbmRleC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/Projets/plateformes-de-gestion-Nutrition-Carnet-de-Recettes/SmartNutrition/Components/Pages/Ingredients/AjouterIngredient.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xJbmdyZWRpZW50c1xBam91dGVySW5ncmVkaWVudC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 

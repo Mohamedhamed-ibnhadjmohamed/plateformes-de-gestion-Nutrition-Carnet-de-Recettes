@@ -25,5 +25,6 @@ namespace SmartNutrition.Services
         Task AddRecetteIngredientAsync(RecetteIngredient recetteIngredient);
         Task UpdateRecetteIngredientAsync(RecetteIngredient recetteIngredient);
         Task DeleteRecetteIngredientAsync(int id);
+        Task<IEnumerable<Recette>> SearchRecettesAsync(string searchTerm);
     }
 }

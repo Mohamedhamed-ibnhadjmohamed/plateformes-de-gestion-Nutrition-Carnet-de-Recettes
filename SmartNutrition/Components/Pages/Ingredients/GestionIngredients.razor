@@ -8,171 +8,148 @@
 <PageTitle>Gestion des Ingrédients</PageTitle>
 
 <div class="container-fluid">
+    <!-- Header -->
     <div class="row mb-4">
         <div class="col">
-            <h2>Gestion des Ingrédients</h2>
+            <h2><i class="bi bi-egg-fried me-2"></i>Gestion des Ingrédients</h2>
             <p class="text-muted">Gérez les ingrédients disponibles pour vos recettes</p>
         </div>
         <div class="col-auto">
             <NavLink href="/gestion-ingredients/ajouter" class="btn btn-primary">
-                <i class="bi bi-plus-circle me-2"></i>Ajouter un ingrédient
+                <i class="bi bi-plus-circle me-2"></i>Ajouter
             </NavLink>
         </div>
     </div>
 
-    <!-- Barre de recherche -->
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <div class="input-group">
-                <span class="input-group-text">
-                    <i class="bi bi-search"></i>
-                </span>
-                <input type="text" class="form-control" placeholder="Rechercher un ingrédient..." 
-                       @bind="searchTerm" @bind:onchange="OnSearchChanged" />
-                <button class="btn btn-outline-secondary" type="button" @onclick="ClearSearch">
-                    <i class="bi bi-x-circle"></i>
-                </button>
+    <!-- Recherche et filtres -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-8">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" class="form-control" placeholder="Rechercher..." 
+                               @bind="searchTerm" @onkeyup="OnSearch" />
+                        <button class="btn btn-outline-secondary" type="button" @onclick="ClearSearch">
+                            <i class="bi bi-x-circle"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-outline-secondary w-100" @onclick="RefreshData">
+                        <i class="bi bi-arrow-clockwise me-2"></i>Actualiser
+                    </button>
+                </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <select class="form-select" @bind="selectedUniteId" @bind:onchange="OnUniteFilterChanged">
-                <option value="0">Toutes les unités</option>
-                @if (unites != null)
-                {
-                    @foreach (var unite in unites)
-                    {
-                        <option value="@unite.Id">@unite.Libelle (@unite.Symbole)</option>
-                    }
-                }
-            </select>
-        </div>
-            </div>
+    </div>
 
-    @if (loading)
-    {
-        <div class="text-center">
-            <div class="spinner-border" role="status">
-                <span class="visually-hidden">Chargement...</span>
-            </div>
-        </div>
-    }
-    else if (ingredients == null || !ingredients.Any())
-    {
-        <div class="alert alert-info">
-            <i class="bi bi-info-circle me-2"></i>
-            @if (!string.IsNullOrEmpty(searchTerm) || selectedUniteId > 0)
+    <!-- Liste des ingrédients -->
+    <div class="card">
+        <div class="card-body">
+            @if (loading)
             {
-                <text>Aucun ingrédient trouvé pour vos critères de recherche.</text>
-                <button class="btn btn-link p-0 ms-2" @onclick="ClearFilters">
-                    Effacer les filtres
-                </button>
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary"></div>
+                    <p class="mt-2">Chargement...</p>
+                </div>
+            }
+            else if (ingredients?.Any() == true)
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Calories</th>
+                                <th>Unité</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var ingredient in ingredients)
+                            {
+                                <tr>
+                                    <td class="fw-bold">@ingredient.Nom</td>
+                                    <td>@ingredient.CaloriesParUnite kcal</td>
+                                    <td>
+                                        @if (ingredient.Unite != null)
+                                        {
+                                            <span class="badge bg-info">@ingredient.Unite.Libelle</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <NavLink href="@($"/detail-ingredient/{ingredient.Id}")" 
+                                                   class="btn btn-outline-info">
+                                                <i class="bi bi-eye"></i>
+                                            </NavLink>
+                                            <NavLink href="@($"/modifier-ingredient/{ingredient.Id}")" 
+                                                   class="btn btn-outline-warning">
+                                                <i class="bi bi-pencil"></i>
+                                            </NavLink>
+                                            <button class="btn btn-outline-danger" 
+                                                   @onclick="() => ShowDeleteModal(ingredient)">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             }
             else
             {
-                <text>Aucun ingrédient trouvé. Cliquez sur "Ajouter un ingrédient" pour commencer.</text>
+                <div class="text-center py-5">
+                    <i class="bi bi-inbox fs-1 text-muted mb-3"></i>
+                    <p class="text-muted">Aucun ingrédient trouvé</p>
+                    <NavLink href="/gestion-ingredients/ajouter" class="btn btn-primary">
+                        <i class="bi bi-plus-circle me-2"></i>Ajouter le premier ingrédient
+                    </NavLink>
+                </div>
             }
         </div>
-    }
-    else
-    {
-        <div class="mb-3">
-            <small class="text-muted">
-                @ingredients.Count() ingrédient@(ingredients.Count() > 1 ? "s" : "") trouvé@(ingredients.Count() > 1 ? "s" : "")
-            </small>
-        </div>
-
-        <!-- Vue Liste -->
-        <div class="card">
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Nom</th>
-                                    <th>Unité</th>
-                                    <th>Calories</th>
-                                    <th>Recettes</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var ingredient in ingredients)
-                                {
-                                    <tr>
-                                        <td><strong>@ingredient.Nom</strong></td>
-                                        <td>
-                                            <span class="badge bg-secondary">@ingredient.Unite?.Symbole</span>
-                                        </td>
-                                        <td>@ingredient.CaloriesParUnite cal/@ingredient.Unite?.Symbole</td>
-                                        <td>
-                                            <span class="badge bg-info">@ingredient.RecetteIngredients.Count</span>
-                                        </td>
-                                        <td>
-                                            <div class="btn-group" role="group">
-                                                <NavLink href="@($"/gestion-ingredients/modifier/{ingredient.Id}")" 
-                                                         class="btn btn-sm btn-outline-primary"
-                                                         title="Modifier">
-                                                    <i class="bi bi-pencil"></i>
-                                                </NavLink>
-                                                <NavLink href="@($"/detail-ingredient/{ingredient.Id}")" 
-                                                         class="btn btn-sm btn-outline-info"
-                                                         title="Voir détail">
-                                                    <i class="bi bi-eye"></i>
-                                                </NavLink>
-                                                <button class="btn btn-sm btn-outline-danger" 
-                                                        @onclick="() => ShowDeleteModal(ingredient)"
-                                                        title="Supprimer"
-                                                        disabled="@(ingredient.RecetteIngredients.Count > 0)">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        }
-    
+    </div>
 </div>
 
-<ConfirmationModal Show="showDeleteModal"
-                   Title="Supprimer un ingrédient"
-                   Message="@(deletingIngredient != null ? $"Êtes-vous sûr de vouloir supprimer l'ingrédient {deletingIngredient.Nom} ?" : "Êtes-vous sûr de vouloir supprimer cet ingrédient ?")"
-                   WarningMessage="@(deletingIngredient?.RecetteIngredients.Count > 0 ? $"Attention : {deletingIngredient.RecetteIngredients.Count} recette(s) utilisent cet ingrédient. Vous devez d'abord modifier ou supprimer ces recettes." : null)"
-                   ConfirmText="Supprimer"
-                   CancelText="Annuler"
-                   ConfirmButtonClass="btn-danger"
-                   ConfirmDisabled="@(deletingIngredient?.RecetteIngredients.Count > 0)"
-                   OnConfirm="ConfirmDelete"
-                   OnCancel="HideDeleteModal" />
+<!-- Modal de suppression -->
+<ConfirmationModal 
+    Show="@showDeleteModal" 
+    Title="Supprimer un ingrédient"
+    Message="Êtes-vous sûr de vouloir supprimer cet ingrédient ?"
+    OnConfirm="ConfirmDelete"
+    OnCancel="HideDeleteModal" />
 
 @code {
     private List<Ingredient>? ingredients;
-    private List<Unite>? unites;
     private Ingredient? deletingIngredient;
     private bool loading = true;
     private bool showDeleteModal = false;
     private string searchTerm = "";
-    private int selectedUniteId = 0;
-    
+
     protected override async Task OnInitializedAsync()
     {
-        await LoadData();
+        await LoadIngredients();
     }
 
-    private async Task LoadData()
+    private async Task LoadIngredients()
     {
         loading = true;
         try
         {
-            await Task.WhenAll(LoadIngredients(), LoadUnites());
+            ingredients = (await IngredientService.GetAllIngredientsAsync()).ToList();
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error loading data: {ex.Message}");
+            Console.WriteLine($"Error: {ex.Message}");
         }
         finally
         {
@@ -180,45 +157,16 @@
         }
     }
 
-    private async Task LoadIngredients()
+    private async Task OnSearch()
     {
-        if (!string.IsNullOrEmpty(searchTerm))
+        if (string.IsNullOrWhiteSpace(searchTerm))
         {
-            ingredients = (await IngredientService.SearchIngredientsAsync(searchTerm)).ToList();
-        }
-        else if (selectedUniteId > 0)
-        {
-            ingredients = (await IngredientService.GetIngredientsByUniteIdAsync(selectedUniteId)).ToList();
+            await LoadIngredients();
         }
         else
         {
-            ingredients = (await IngredientService.GetAllIngredientsAsync()).ToList();
+            ingredients = (await IngredientService.SearchIngredientsAsync(searchTerm)).ToList();
         }
-    }
-
-    private async Task LoadUnites()
-    {
-        try
-        {
-            // Charger les unités pour le filtre - pour l'instant, liste vide
-            unites = new List<Unite>();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error loading unites: {ex.Message}");
-        }
-    }
-
-    private async Task OnSearchChanged(ChangeEventArgs e)
-    {
-        searchTerm = e.Value?.ToString() ?? "";
-        await LoadIngredients();
-    }
-
-    private async Task OnUniteFilterChanged(ChangeEventArgs e)
-    {
-        selectedUniteId = int.Parse(e.Value?.ToString() ?? "0");
-        await LoadIngredients();
     }
 
     private void ClearSearch()
@@ -227,11 +175,10 @@
         _ = Task.Run(LoadIngredients);
     }
 
-    private void ClearFilters()
+    private async Task RefreshData()
     {
         searchTerm = "";
-        selectedUniteId = 0;
-        _ = Task.Run(LoadIngredients);
+        await LoadIngredients();
     }
 
     private void ShowDeleteModal(Ingredient ingredient)
@@ -258,7 +205,7 @@
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error deleting ingredient: {ex.Message}");
+            Console.WriteLine($"Error: {ex.Message}");
         }
     }
 }

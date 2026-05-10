@@ -68,5 +68,14 @@ namespace SmartNutrition.Services
         {
             return await _context.Unites.AnyAsync(u => u.Id == id);
         }
+
+        public async Task<IEnumerable<Unite>> SearchUnitesAsync(string searchTerm)
+        {
+            return await _context.Unites
+                .Where(u => u.Libelle.Contains(searchTerm) || 
+                            u.Symbole.Contains(searchTerm))
+                .OrderBy(u => u.Libelle)
+                .ToListAsync();
+        }
     }
 }

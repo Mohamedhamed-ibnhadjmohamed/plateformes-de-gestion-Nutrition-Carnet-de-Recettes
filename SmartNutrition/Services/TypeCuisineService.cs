@@ -74,5 +74,15 @@ namespace SmartNutrition.Services
         {
             return await _context.TypesCuisine.AnyAsync(tc => tc.Id == id);
         }
+
+        public async Task<IEnumerable<TypeCuisine>> SearchTypesCuisineAsync(string searchTerm)
+        {
+            return await _context.TypesCuisine
+                .Include(tc => tc.Recettes)
+                .Where(tc => tc.Libelle.Contains(searchTerm) || 
+                              (tc.Pays != null && tc.Pays.Contains(searchTerm)))
+                .OrderBy(tc => tc.Libelle)
+                .ToListAsync();
+        }
     }
 }
