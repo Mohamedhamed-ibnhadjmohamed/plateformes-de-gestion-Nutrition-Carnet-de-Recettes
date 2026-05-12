@@ -1,24 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Projets\\plateformes-de-gestion-Nutrition-Carnet-de-Recettes\\SmartNutrition\\SmartNutrition.csproj": {}
+    "C:\\Users\\Reach\\OneDrive\\Bureau\\plateformes-de-gestion-Nutrition-Carnet-de-Recettes\\SmartNutrition\\SmartNutrition.csproj": {}
   },
   "projects": {
-    "D:\\Projets\\plateformes-de-gestion-Nutrition-Carnet-de-Recettes\\SmartNutrition\\SmartNutrition.csproj": {
+    "C:\\Users\\Reach\\OneDrive\\Bureau\\plateformes-de-gestion-Nutrition-Carnet-de-Recettes\\SmartNutrition\\SmartNutrition.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Projets\\plateformes-de-gestion-Nutrition-Carnet-de-Recettes\\SmartNutrition\\SmartNutrition.csproj",
+        "projectUniqueName": "C:\\Users\\Reach\\OneDrive\\Bureau\\plateformes-de-gestion-Nutrition-Carnet-de-Recettes\\SmartNutrition\\SmartNutrition.csproj",
         "projectName": "SmartNutrition",
-        "projectPath": "D:\\Projets\\plateformes-de-gestion-Nutrition-Carnet-de-Recettes\\SmartNutrition\\SmartNutrition.csproj",
-        "packagesPath": "C:\\Users\\mhbm\\.nuget\\packages\\",
-        "outputPath": "D:\\Projets\\plateformes-de-gestion-Nutrition-Carnet-de-Recettes\\SmartNutrition\\obj\\",
+        "projectPath": "C:\\Users\\Reach\\OneDrive\\Bureau\\plateformes-de-gestion-Nutrition-Carnet-de-Recettes\\SmartNutrition\\SmartNutrition.csproj",
+        "packagesPath": "C:\\Users\\Reach\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Reach\\OneDrive\\Bureau\\plateformes-de-gestion-Nutrition-Carnet-de-Recettes\\SmartNutrition\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\mhbm\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config"
+          "C:\\Users\\Reach\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
@@ -28,7 +24,6 @@
         },
         "frameworks": {
           "net10.0": {
-            "framework": "net10.0",
             "targetAlias": "net10.0",
             "projectReferences": {}
           }
@@ -43,18 +38,21 @@
           "auditLevel": "low",
           "auditMode": "all"
         },
-        "SdkAnalysisLevel": "11.0.100"
+        "SdkAnalysisLevel": "10.0.200"
       },
       "frameworks": {
         "net10.0": {
-          "framework": "net10.0",
           "targetAlias": "net10.0",
           "dependencies": {
             "Microsoft.AspNetCore.App.Internal.Assets": {
               "suppressParent": "All",
               "target": "Package",
-              "version": "[10.0.5, )",
+              "version": "[10.0.7, )",
               "autoReferenced": true
+            },
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[10.0.8, )"
             },
             "Microsoft.EntityFrameworkCore.Design": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
@@ -82,24 +80,6 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[10.0.5, 10.0.5]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Host.win-x64",
-              "version": "[10.0.5, 10.0.5]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Ref",
-              "version": "[10.0.5, 10.0.5]"
-            },
-            {
-              "name": "Microsoft.WindowsDesktop.App.Ref",
-              "version": "[10.0.5, 10.0.5]"
-            }
-          ],
           "frameworkReferences": {
             "Microsoft.AspNetCore.App": {
               "privateAssets": "none"
@@ -108,7 +88,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\11.0.100-preview.3.26207.106/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.203/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.AspNetCore": "(,10.0.32767]",
             "Microsoft.AspNetCore.Antiforgery": "(,10.0.32767]",

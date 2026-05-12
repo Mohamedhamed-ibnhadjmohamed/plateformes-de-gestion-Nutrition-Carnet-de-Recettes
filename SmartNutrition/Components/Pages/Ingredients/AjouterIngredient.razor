@@ -1,4 +1,5 @@
 @page "/gestion-ingredients/ajouter"
+@attribute [Authorize(Roles = "Admin")]
 @using SmartNutrition.Models
 @using SmartNutrition.Services
 @inject IIngredientService IngredientService

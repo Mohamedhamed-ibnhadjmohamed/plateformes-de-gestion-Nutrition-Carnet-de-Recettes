@@ -1,4 +1,5 @@
 @page "/gestion-categories/ajouter"
+@attribute [Authorize(Roles = "Admin")]
 @using SmartNutrition.Models
 @using SmartNutrition.Services
 @inject ICategorieService CategorieService

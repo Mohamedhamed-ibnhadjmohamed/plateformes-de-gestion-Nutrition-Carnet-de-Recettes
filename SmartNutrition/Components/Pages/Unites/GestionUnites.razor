@@ -15,9 +15,11 @@
             <p class="text-muted">Gérez les unités de mesure</p>
         </div>
         <div class="col-auto">
-            <NavLink href="/gestion-unites/ajouter" class="btn btn-primary">
-                <i class="bi bi-plus-circle me-2"></i>Ajouter
-            </NavLink>
+            <AuthorizeView Roles="Admin">
+                <NavLink href="/gestion-unites/ajouter" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-2"></i>Ajouter
+                </NavLink>
+            </AuthorizeView>
         </div>
     </div>
 
@@ -81,14 +83,16 @@
                                                    class="btn btn-outline-info">
                                                 <i class="bi bi-eye"></i>
                                             </NavLink>
-                                            <NavLink href="@($"/modifier-unite/{unite.Id}")" 
-                                                   class="btn btn-outline-warning">
-                                                <i class="bi bi-pencil"></i>
-                                            </NavLink>
-                                            <button class="btn btn-outline-danger" 
-                                                   @onclick="() => ShowDeleteModal(unite)">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
+                                            <AuthorizeView Roles="Admin">
+                                                <NavLink href="@($"/modifier-unite/{unite.Id}")" 
+                                                       class="btn btn-outline-warning">
+                                                    <i class="bi bi-pencil"></i>
+                                                </NavLink>
+                                                <button class="btn btn-outline-danger" 
+                                                       @onclick="() => ShowDeleteModal(unite)">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </AuthorizeView>
                                         </div>
                                     </td>
                                 </tr>
@@ -102,9 +106,11 @@
                 <div class="text-center py-5">
                     <i class="bi bi-inbox fs-1 text-muted mb-3"></i>
                     <p class="text-muted">Aucune unité trouvée</p>
-                    <NavLink href="/gestion-unites/ajouter" class="btn btn-primary">
-                        <i class="bi bi-plus-circle me-2"></i>Ajouter la première unité
-                    </NavLink>
+                    <AuthorizeView Roles="Admin">
+                        <NavLink href="/gestion-unites/ajouter" class="btn btn-primary">
+                            <i class="bi bi-plus-circle me-2"></i>Ajouter la première unité
+                        </NavLink>
+                    </AuthorizeView>
                 </div>
             }
         </div>

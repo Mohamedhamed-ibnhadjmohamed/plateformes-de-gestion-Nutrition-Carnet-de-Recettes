@@ -134,28 +134,36 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-3 mb-3">
-                            <NavLink href="/gestion-recettes/ajouter" class="btn btn-outline-primary w-100 action-btn">
-                                <i class="bi bi-plus-circle me-2"></i>
-                                Nouvelle recette
-                            </NavLink>
+                            <AuthorizeView Roles="Admin">
+                                <NavLink href="/gestion-recettes/ajouter" class="btn btn-outline-primary w-100 action-btn">
+                                    <i class="bi bi-plus-circle me-2"></i>
+                                    Nouvelle recette
+                                </NavLink>
+                            </AuthorizeView>
                         </div>
                         <div class="col-md-3 mb-3">
-                            <NavLink href="/gestion-ingredients/ajouter" class="btn btn-outline-success w-100 action-btn">
-                                <i class="bi bi-plus-circle me-2"></i>
-                                Nouvel ingrédient
-                            </NavLink>
+                            <AuthorizeView Roles="Admin">
+                                <NavLink href="/gestion-ingredients/ajouter" class="btn btn-outline-success w-100 action-btn">
+                                    <i class="bi bi-plus-circle me-2"></i>
+                                    Nouvel ingrédient
+                                </NavLink>
+                            </AuthorizeView>
                         </div>
                         <div class="col-md-3 mb-3">
-                            <NavLink href="/gestion-categories/ajouter" class="btn btn-outline-info w-100 action-btn">
-                                <i class="bi bi-plus-circle me-2"></i>
-                                Nouvelle catégorie
-                            </NavLink>
+                            <AuthorizeView Roles="Admin">
+                                <NavLink href="/gestion-categories/ajouter" class="btn btn-outline-info w-100 action-btn">
+                                    <i class="bi bi-plus-circle me-2"></i>
+                                    Nouvelle catégorie
+                                </NavLink>
+                            </AuthorizeView>
                         </div>
                         <div class="col-md-3 mb-3">
-                            <NavLink href="/gestion-recette-ingredients/ajouter" class="btn btn-outline-warning w-100 action-btn">
-                                <i class="bi bi-plus-circle me-2"></i>
-                                Associer ingrédient
-                            </NavLink>
+                            <AuthorizeView Roles="Admin">
+                                <NavLink href="/gestion-recette-ingredients/ajouter" class="btn btn-outline-warning w-100 action-btn">
+                                    <i class="bi bi-plus-circle me-2"></i>
+                                    Associer ingrédient
+                                </NavLink>
+                            </AuthorizeView>
                         </div>
                     </div>
                 </div>
